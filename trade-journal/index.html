@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade-Journal</title>
+  <style>
+    :root {
+      --bg: #f6f7f9; --card: #fff; --text: #1c2430; --muted: #5d6b7c; --border: #dde2e8;
+      --accent: #2f5bd3; --pos: #11845b; --neg: #c2362f;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12161c; --card: #1b2129; --text: #e6ebf1; --muted: #9aa7b6; --border: #2c3540;
+        --accent: #7a9cff; --pos: #4cc38a; --neg: #f07b72;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    h2 { font-size: 1.05rem; margin: 0 0 12px; }
+    p.sub { color: var(--muted); margin: 0 0 20px; }
+    section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .kpi { border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .kpi .label { color: var(--muted); font-size: .85rem; }
+    .kpi .value { font-size: 1.5rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .kpi .hint { color: var(--muted); font-size: .8rem; }
+    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--muted); }
+    input, select, button { font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+    button { cursor: pointer; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .error { color: var(--neg); min-height: 1.5em; margin: 8px 0 0; }
+    .error.ok { color: var(--pos); }
+    .import { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--text); max-width: 100%; }
+    .import input { max-width: 100%; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 500; font-size: .85rem; }
+    td.num, th.num { text-align: right; }
+    .pos { color: var(--pos); } .neg { color: var(--neg); }
+    .row-actions button { padding: 2px 8px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .empty { color: var(--muted); text-align: center; padding: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Trade-Journal</h1>
+  <p class="sub">Trades erfassen und Trefferquote, Gewinn/Verlust und Chance-Risiko-Verhältnis sehen. Daten bleiben lokal in diesem Browser.</p>
+
+  <section aria-labelledby="kpi-title">
+    <h2 id="kpi-title">Kennzahlen</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="label">Trefferquote</div><div class="value" id="k-winrate">–</div><div class="hint" id="k-winrate-hint"></div></div>
+      <div class="kpi"><div class="label">Gewinn/Verlust gesamt</div><div class="value" id="k-pnl">–</div><div class="hint" id="k-pnl-hint"></div></div>
+      <div class="kpi"><div class="label">Chance-Risiko-Verhältnis</div><div class="value" id="k-crv">–</div><div class="hint">Ø Gewinn / Ø Verlust</div></div>
+      <div class="kpi"><div class="label">Trades</div><div class="value" id="k-count">0</div><div class="hint" id="k-count-hint"></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="form-title">
+    <h2 id="form-title">Trade hinzufügen</h2>
+    <form id="trade-form" novalidate>
+      <label>Datum <input type="date" name="date" required></label>
+      <label>Symbol <input type="text" name="symbol" placeholder="z. B. AAPL" maxlength="20" required></label>
+      <label>Richtung
+        <select name="side"><option value="long">Long</option><option value="short">Short</option></select>
+      </label>
+      <label>Einstieg <input type="number" name="entry" step="any" min="0" inputmode="decimal" required></label>
+      <label>Ausstieg <input type="number" name="exit" step="any" min="0" inputmode="decimal" required></label>
+      <label>Stückzahl <input type="number" name="quantity" step="any" min="0" inputmode="decimal" required></label>
+      <button type="submit" class="primary">Hinzufügen</button>
+    </form>
+    <p class="error" id="form-error" role="alert"></p>
+  </section>
+
+  <section aria-labelledby="list-title">
+    <h2 id="list-title">Trades</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Datum</th><th>Symbol</th><th>Richtung</th><th class="num">Einstieg</th><th class="num">Ausstieg</th><th class="num">Stück</th><th class="num">G/V</th><th></th></tr>
+        </thead>
+        <tbody id="trade-rows"></tbody>
+      </table>
+    </div>
+    <div class="toolbar">
+      <button type="button" id="export-csv">CSV exportieren</button>
+      <label class="import">
+        <span>CSV importieren</span><input type="file" id="import-csv" accept=".csv,text/csv">
+      </label>
+    </div>
+  </section>
+</main>
+<script src="stats.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
