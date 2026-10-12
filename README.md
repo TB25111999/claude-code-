@@ -1,2 +1,2 @@
 # claude-code-
-- [Trade-Journal](trade-journal/) – Trades erfassen, Trefferquote, G/V und CRV anzeigen
+- [Trading-Journal](trade-journal/) – Trades erfassen, auswerten und filtern (eine Datei: `trade-journal/index.html`)

@@ -1,25 +1,37 @@
-# Trade-Journal
+# Trading-Journal
 
-Einfache Web-App ohne Abhängigkeiten zum Erfassen von Trades (Datum, Symbol, Richtung, Einstieg, Ausstieg, Stückzahl).
+Ein Trading-Journal als **einzelne Datei** (`index.html`): HTML, CSS und JavaScript in einer Datei, keine Installation, keine Internetverbindung nötig. Oberfläche auf Deutsch, auch fürs Handy.
 
-**Starten:** `index.html` im Browser öffnen – kein Server, kein Build nötig.
+## Öffnen
 
-## Kennzahlen
+- **Computer:** `index.html` herunterladen und doppelklicken (öffnet im Standardbrowser).
+- **Handy:** Datei aufs Handy laden (z. B. über Cloud-Speicher oder per Mail) und mit dem Browser öffnen.
+
+Die Daten liegen im Speicher *des jeweiligen Browsers* für genau diese Datei. Anderer Browser, anderes Gerät oder anderer Speicherort der Datei = leeres Journal. Zum Übertragen und als Sicherung: **CSV exportieren** und dort **CSV importieren**.
+
+## Funktionen
+
+- Trades erfassen: Datum, Uhrzeit, Symbol, Long/Short, Einstieg, Ausstieg, Stückzahl, Stop-Loss, Gebühren, Strategie (Auswahl, eigene ergänzbar), Notiz
+- Tabelle mit Bearbeiten (✎) und Löschen (✕)
+- Auswertung, Diagramme und Tabelle folgen dem Filter (Zeitraum, Symbol, Strategie)
+- CSV mit `;` und Dezimalkomma (öffnet direkt in deutschem Excel); Import überspringt Duplikate und meldet fehlerhafte Zeilen
+
+## Berechnungen
 
 | Kennzahl | Berechnung |
 |---|---|
-| Gewinn/Verlust je Trade | Long: (Ausstieg − Einstieg) × Stück · Short: (Einstieg − Ausstieg) × Stück |
-| Trefferquote | Gewinner ÷ alle Trades (Break-even zählt nicht als Treffer) |
-| Gewinn/Verlust gesamt | Summe aller Trades |
-| Chance-Risiko-Verhältnis | Ø Gewinn der Gewinner ÷ Ø Verlust der Verlierer (realisiert) |
+| G/V netto je Trade | Long: (Ausstieg − Einstieg) × Stück − Gebühren · Short: (Einstieg − Ausstieg) × Stück − Gebühren |
+| CRV je Trade (R) | G/V netto ÷ Anfangsrisiko, Anfangsrisiko = \|Einstieg − Stop-Loss\| × Stück |
+| Chance-Risiko-Verhältnis | Ø R der Gewinner-Trades mit Stop-Loss, angezeigt als „x : 1“ |
+| Erwartungswert | Ø R über alle Trades mit Stop-Loss |
+| Trefferquote | Gewinner ÷ alle Trades (±0 zählt nicht als Gewinner) |
+| Gewinn-/Verlustserie | Längste Folge in zeitlicher Reihenfolge (Datum + Uhrzeit); ±0 unterbricht die Serie |
 
-Gebühren und Steuern werden nicht berücksichtigt. Das CRV ist das *realisierte* Verhältnis; ein geplantes CRV bräuchte zusätzlich Stop-Loss und Kursziel je Trade.
-
-## Daten
-
-Trades werden nur im `localStorage` dieses Browsers gespeichert. Für eine Sicherung bzw. den Umzug auf ein anderes Gerät: **CSV exportieren** / **CSV importieren** (Trennzeichen `;`, Datum `JJJJ-MM-TT`).
+Trades ohne Stop-Loss zählen bei allen Kennzahlen mit, nur nicht beim CRV und beim Erwartungswert.
 
 ## Tests
+
+Die Rechenlogik steht im Block `<script id="journal-core">` und wird direkt aus `index.html` getestet:
 
 ```bash
 node --test test/*.test.js
