@@ -2,185 +2,843 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
 <title>Meine To-dos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
+  /* Layout: dunkle Kommandoleiste links (Überblick + Kategorien), rechts Eingabe, Filter und nach Fälligkeit gruppierte Aufgaben. Mobil: alles in einer Spalte. */
   :root {
-    --bg: #f4f5f7; --card: #ffffff; --text: #1d2330; --muted: #6b7280;
-    --border: #e3e6eb; --accent: #3b6cf6; --accent-text: #ffffff; --danger: #d93a3a;
+    --bg: #eef1ee; --surface: #ffffff; --surface-2: #f6f8f6; --fg: #17201c; --muted: #637069;
+    --line: #dde3df; --accent: #17795a; --on-accent: #ffffff; --accent-soft: #dcefe6;
+    --side-bg: #13201b; --side-fg: #e8efeb; --side-muted: #8fa39a; --side-line: #24352e; --side-hover: #1b2c25;
+    --danger: #c63c2b; --warn: #c27a0e; --ok: #17795a; --low: #8a958f;
+    --k1: #0f8a6c; --k2: #c25e10; --k3: #cc3363; --k4: #2d5fd3; --k5: #7b4bd0; --k6: #a07a06; --k7: #0d87a3; --k8: #5f8a1c; --k9: #b0418f; --k10: #4a6378;
+    --shadow: 0 1px 2px rgb(20 35 28 / .06), 0 8px 24px -12px rgb(20 35 28 / .18);
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 14px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #14161b; --card: #1e2128; --text: #e8eaf0; --muted: #9aa1ad;
-      --border: #2e323b; --accent: #6b8fff; --accent-text: #0e1220; --danger: #ff6b6b;
+      --bg: #0f1613; --surface: #17201c; --surface-2: #1c2622; --fg: #e5ece8; --muted: #91a098;
+      --line: #27332e; --accent: #4cc497; --on-accent: #08160f; --accent-soft: #183a2d;
+      --side-bg: #0a110e; --side-fg: #e5ece8; --side-muted: #7f938a; --side-line: #1d2a24; --side-hover: #142019;
+      --danger: #ff7a66; --warn: #f0a93a; --ok: #4cc497; --low: #7d8a84;
+      --k1: #3fd1a6; --k2: #ff9a4d; --k3: #ff6f9a; --k4: #7ea2ff; --k5: #b393ff; --k6: #e4c04a; --k7: #45c8e6; --k8: #a3d25a; --k9: #ef7fcf; --k10: #9db4c7;
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -14px rgb(0 0 0 / .6);
+      color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #14161b; --card: #1e2128; --text: #e8eaf0; --muted: #9aa1ad;
-    --border: #2e323b; --accent: #6b8fff; --accent-text: #0e1220; --danger: #ff6b6b;
+    --bg: #0f1613; --surface: #17201c; --surface-2: #1c2622; --fg: #e5ece8; --muted: #91a098;
+    --line: #27332e; --accent: #4cc497; --on-accent: #08160f; --accent-soft: #183a2d;
+    --side-bg: #0a110e; --side-fg: #e5ece8; --side-muted: #7f938a; --side-line: #1d2a24; --side-hover: #142019;
+    --danger: #ff7a66; --warn: #f0a93a; --ok: #4cc497; --low: #7d8a84;
+    --k1: #3fd1a6; --k2: #ff9a4d; --k3: #ff6f9a; --k4: #7ea2ff; --k5: #b393ff; --k6: #e4c04a; --k7: #45c8e6; --k8: #a3d25a; --k9: #ef7fcf; --k10: #9db4c7;
+    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -14px rgb(0 0 0 / .6);
+    color-scheme: dark;
   }
+
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  .app { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  @media (min-width: 920px) { .app { grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; padding-block: 32px 72px; } }
+
+  /* ---------- Seitenleiste ---------- */
+  .side { background: var(--side-bg); color: var(--side-fg); border-radius: 20px; padding: 22px 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-self: start; box-shadow: var(--shadow); min-width: 0; }
+  @media (min-width: 920px) { .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); } }
+  .brand { display: grid; gap: 2px; padding-inline: 4px; }
+  .brand h1 { margin: 0; font: 800 1.85rem/1.05 var(--font-display); letter-spacing: -0.02em; }
+  .brand .today { color: var(--side-muted); font-size: .9rem; }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat { background: var(--side-hover); border: 1px solid var(--side-line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 0; text-align: left; color: inherit; }
+  .stat:hover { border-color: var(--side-muted); }
+  .stat b { font: 700 1.5rem/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .78rem; color: var(--side-muted); letter-spacing: .02em; }
+  .stat.alert b { color: #ff8a73; }
+  .stat.today b { color: #f4c25c; }
+  .side h2 { margin: 0 0 6px; padding-inline: 6px; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--side-muted); }
+  .cats { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  @media (max-width: 919px) {
+    .cats { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+    .cats li { flex: none; }
+    .cat-btn { border: 1px solid var(--side-line); }
   }
-  main { max-width: 560px; margin: 0 auto; padding: 40px 16px; }
-  h1 { font-size: 1.75rem; margin: 0 0 4px; }
-  .sub { color: var(--muted); margin: 0 0 24px; }
-  form { display: flex; gap: 8px; margin-bottom: 16px; }
-  input[type="text"] {
-    flex: 1; min-width: 0; padding: 12px 14px; font: inherit; color: inherit;
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  .cat-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; background: transparent; border-radius: 10px; text-align: left; color: var(--side-fg); }
+  .cat-btn:hover { background: var(--side-hover); }
+  .cat-btn[aria-pressed="true"] { background: var(--side-hover); box-shadow: inset 0 0 0 1px var(--side-line); }
+  .cat-btn .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--k, var(--side-muted)); flex: none; }
+  .cat-btn .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cat-btn .n { font: 500 .78rem var(--font-mono); color: var(--side-muted); font-variant-numeric: tabular-nums; }
+  .cat-row { position: relative; }
+  .cat-del { position: absolute; right: 34px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--side-muted); padding: 2px 6px; border-radius: 6px; opacity: 0; }
+  .cat-row:hover .cat-del, .cat-del:focus-visible { opacity: 1; }
+  .cat-del:hover { color: #ff8a73; }
+  @media (max-width: 919px) { .cat-del { display: none; } }
+  .newcat { display: flex; gap: 6px; margin-top: 8px; }
+  .newcat input { flex: 1; min-width: 0; width: 100%; background: var(--side-hover); border: 1px solid var(--side-line); border-radius: 10px; padding: 8px 10px; color: var(--side-fg); }
+  .newcat input::placeholder { color: var(--side-muted); }
+  .newcat button { flex: none; border: 1px solid var(--side-line); background: transparent; color: var(--side-fg); border-radius: 10px; padding: 0 12px; font-weight: 600; }
+  .newcat button:hover { background: var(--side-hover); }
+  .side .foot { font-size: .78rem; color: var(--side-muted); padding-inline: 6px; }
+
+  /* ---------- Hauptbereich ---------- */
+  .main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
+
+  .composer { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+  .composer .title-row { display: flex; gap: 10px; align-items: center; }
+  .composer .plus { width: 34px; height: 34px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font: 700 1.3rem/1 var(--font-display); flex: none; }
+  #c-title { flex: 1; min-width: 0; border: 0; background: transparent; font: 600 1.2rem/1.3 var(--font-body); padding: 6px 2px; }
+  #c-title::placeholder { color: var(--muted); font-weight: 500; }
+  #c-title:focus-visible { outline: none; }
+  .fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .field { display: grid; gap: 5px; min-width: 0; }
+  @media (max-width: 600px) {
+    .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fields > .field:nth-child(-n+2) { grid-column: 1 / -1; }
   }
-  input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  button { font: inherit; cursor: pointer; border-radius: 10px; }
-  .add { padding: 0 18px; background: var(--accent); color: var(--accent-text); border: 0; font-weight: 600; }
-  .filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-  .filters button {
-    padding: 6px 12px; background: transparent; color: var(--muted);
-    border: 1px solid var(--border); font-size: .9rem;
-  }
-  .filters button[aria-pressed="true"] { color: var(--text); border-color: var(--accent); }
-  ul { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--border); }
-  li:first-child { border-top: 0; }
-  li input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
-  li .text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  li.done .text { text-decoration: line-through; color: var(--muted); }
-  li .del { background: transparent; border: 0; color: var(--muted); font-size: 1.25rem; line-height: 1; padding: 4px 8px; }
-  li .del:hover { color: var(--danger); }
-  .edit { flex: 1; padding: 4px 8px; }
-  .empty { padding: 24px; text-align: center; color: var(--muted); }
-  footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: var(--muted); font-size: .9rem; }
-  footer button { background: transparent; border: 0; color: var(--muted); padding: 4px 0; }
-  footer button:hover { color: var(--danger); }
+  .field > label, .field > .lbl { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .input, select.input { width: 100%; min-width: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; height: 40px; }
+  textarea.input { height: auto; min-height: 70px; resize: vertical; line-height: 1.45; }
+  .input:hover { border-color: color-mix(in srgb, var(--muted) 45%, var(--line)); }
+  .input[aria-invalid="true"] { border-color: var(--danger); }
+  .prio-seg { display: flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; height: 40px; }
+  .prio-seg label { flex: 1; min-width: 0; position: relative; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: .88rem; font-weight: 600; color: var(--muted); cursor: pointer; padding-inline: 6px; white-space: nowrap; }
+  .prio-seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .prio-seg label:has(input:checked) { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+  .prio-seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .prio-seg .pip { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+  .pip.hoch { background: var(--danger); } .pip.mittel { background: var(--warn); } .pip.niedrig { background: var(--low); }
+  .composer-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .quick { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .quick span { font-size: .8rem; color: var(--muted); margin-right: 2px; }
+  .chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 4px 11px; font-size: .82rem; font-weight: 500; color: var(--fg); }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .btn { border: 0; border-radius: 11px; padding: 10px 18px; font-weight: 700; background: var(--accent); color: var(--on-accent); }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .btn.danger { background: transparent; color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--line)); }
+  .link-btn { border: 0; background: transparent; color: var(--muted); font-size: .85rem; padding: 4px 2px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+  .link-btn:hover { color: var(--fg); }
+  .err { color: var(--danger); font-size: .85rem; margin: 0; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .tabs { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 3px; }
+  .tabs button { border: 0; background: transparent; padding: 6px 14px; border-radius: 9px; font-weight: 600; font-size: .9rem; color: var(--muted); }
+  .tabs button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; justify-content: flex-end; min-width: 0; }
+  .tools .input { height: 38px; width: auto; }
+  #q { width: 200px; max-width: 100%; flex: 1 1 160px; }
+  .active-filter { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--muted); }
+  .active-filter strong { color: var(--fg); font: 700 1.25rem var(--font-display); letter-spacing: -0.01em; }
+
+  .groups { display: grid; gap: 18px; min-width: 0; }
+  .group { display: grid; gap: 8px; min-width: 0; }
+  .group h3 { margin: 6px 0 0; display: flex; align-items: baseline; gap: 8px; font: 700 .76rem/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .group h3 .n { font: 500 .76rem var(--font-mono); }
+  .group.overdue h3 { color: var(--danger); }
+  .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+  .task { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 14px 14px 18px; overflow: hidden; transition: border-color .15s, transform .15s; }
+  .task::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--pc, transparent); }
+  .task.p-hoch { --pc: var(--danger); } .task.p-mittel { --pc: var(--warn); } .task.p-niedrig { --pc: var(--low); }
+  .task:hover { border-color: color-mix(in srgb, var(--muted) 40%, var(--line)); }
+  .task.done { background: var(--surface-2); }
+  .task.done .t-title { text-decoration: line-through; color: var(--muted); }
+  .task.done::before { opacity: .35; }
+  .check { width: 24px; height: 24px; margin-top: 1px; border-radius: 8px; border: 2px solid color-mix(in srgb, var(--muted) 60%, transparent); background: transparent; display: grid; place-items: center; padding: 0; flex: none; }
+  .check:hover { border-color: var(--accent); }
+  .check svg { width: 14px; height: 14px; opacity: 0; }
+  .check[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+  .check[aria-checked="true"] svg { opacity: 1; }
+  .check path { stroke: var(--on-accent); }
+  .t-body { min-width: 0; display: grid; gap: 7px; cursor: pointer; text-align: left; background: transparent; border: 0; padding: 0; }
+  .t-title { font-weight: 600; font-size: 1.02rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .t-note { color: var(--muted); font-size: .88rem; overflow-wrap: anywhere; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .t-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: .82rem; color: var(--muted); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 8px; border-radius: 999px; font-weight: 600; font-size: .78rem; color: var(--k); background: color-mix(in srgb, var(--k) 13%, transparent); }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--k); }
+  .prio-tag { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+  .prio-tag.hoch { color: var(--danger); }
+  .dates { font-family: var(--font-mono); font-size: .78rem; letter-spacing: -.01em; }
+  .rel { font-weight: 600; }
+  .rel.overdue { color: var(--danger); } .rel.today { color: var(--warn); } .rel.running { color: var(--ok); }
+  .span { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; max-width: 320px; }
+  .span i { display: block; height: 100%; width: var(--w); background: var(--pc, var(--accent)); border-radius: inherit; }
+  .t-edit { border: 0; background: transparent; color: var(--muted); border-radius: 8px; padding: 4px 8px; font-size: .85rem; }
+  .t-edit:hover { background: var(--surface-2); color: var(--fg); }
+  @media (max-width: 600px) { .t-edit { display: none; } .task { grid-template-columns: auto minmax(0, 1fr); } }
+
+  .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 20px; padding: 40px 20px; text-align: center; color: var(--muted); display: grid; gap: 6px; justify-items: center; }
+  .empty strong { color: var(--fg); font: 700 1.15rem var(--font-display); }
+
+  /* ---------- Bearbeiten-Dialog ---------- */
+  .overlay { position: fixed; inset: 0; background: rgb(8 14 11 / .55); display: grid; place-items: center; padding: 16px; z-index: 20; backdrop-filter: blur(3px); }
+  .sheet { width: min(560px, 100%); max-height: calc(100% - 32px); overflow-y: auto; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 20px; display: grid; gap: 14px; }
+  .sheet h2 { margin: 0; font: 700 1.3rem var(--font-display); }
+  .sheet .actions { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+  .sheet .actions div { display: flex; gap: 8px; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); background: var(--fg); color: var(--bg); border-radius: 12px; padding: 10px 12px 10px 16px; display: flex; gap: 14px; align-items: center; box-shadow: var(--shadow); z-index: 30; max-width: calc(100% - 32px); font-size: .92rem; }
+  .toast button { border: 0; background: transparent; color: var(--accent-soft); font-weight: 700; padding: 4px 6px; }
+  .status { font-size: .82rem; color: var(--muted); }
+  .status[data-kind="error"] { color: var(--danger); }
 </style>
-</head>
-<body>
-<main>
-  <h1>Meine To-dos</h1>
-  <p class="sub">Doppelklick auf eine Aufgabe zum Bearbeiten.</p>
 
-  <form id="form">
-    <input id="input" type="text" placeholder="Was ist zu tun?" autocomplete="off" aria-label="Neue Aufgabe">
-    <button class="add" type="submit">Hinzufügen</button>
+<div class="app">
+  <aside class="side" aria-label="Überblick">
+    <div class="brand">
+      <h1>Meine To-dos</h1>
+      <span class="today" id="today"></span>
+    </div>
+
+    <div class="stats">
+      <button type="button" class="stat" data-jump="open"><b id="s-open">0</b><span>Offen</span></button>
+      <button type="button" class="stat today" data-jump="today"><b id="s-today">0</b><span>Heute fällig</span></button>
+      <button type="button" class="stat alert" data-jump="overdue"><b id="s-over">0</b><span>Überfällig</span></button>
+      <button type="button" class="stat" data-jump="done"><b id="s-done">0</b><span>Erledigt</span></button>
+    </div>
+
+    <nav aria-label="Kategorien">
+      <h2>Kategorien</h2>
+      <ul class="cats" id="cats"></ul>
+      <form class="newcat" id="newcat">
+        <input id="newcat-name" type="text" placeholder="Neue Kategorie" maxlength="24" aria-label="Name der neuen Kategorie">
+        <button type="submit">Anlegen</button>
+      </form>
+    </nav>
+
+    <div class="foot" id="status-side"></div>
+  </aside>
+
+  <main class="main">
+    <form class="composer" id="composer" novalidate>
+      <div class="title-row">
+        <span class="plus" aria-hidden="true">+</span>
+        <input id="c-title" type="text" placeholder="Neue Aufgabe, z. B. „DAX-Setup für Montag vorbereiten“" maxlength="200" autocomplete="off" aria-label="Titel der Aufgabe">
+      </div>
+      <div class="fields">
+        <div class="field">
+          <label for="c-cat">Kategorie</label>
+          <select id="c-cat" class="input"></select>
+        </div>
+        <div class="field">
+          <span class="lbl" id="c-prio-lbl">Priorität</span>
+          <div class="prio-seg" role="radiogroup" aria-labelledby="c-prio-lbl">
+            <label><input type="radio" name="c-prio" id="c-prio-hoch" value="hoch"><span class="pip hoch"></span>Hoch</label>
+            <label><input type="radio" name="c-prio" id="c-prio-mittel" value="mittel" checked><span class="pip mittel"></span>Mittel</label>
+            <label><input type="radio" name="c-prio" id="c-prio-niedrig" value="niedrig"><span class="pip niedrig"></span>Niedrig</label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-start">Start</label>
+          <input id="c-start" type="date" class="input">
+        </div>
+        <div class="field">
+          <label for="c-end">Ende / fällig</label>
+          <input id="c-end" type="date" class="input">
+        </div>
+      </div>
+      <div class="field" id="c-note-wrap" hidden>
+        <label for="c-note">Notiz</label>
+        <textarea id="c-note" class="input" maxlength="2000" placeholder="Details, Links, Zwischenschritte …"></textarea>
+      </div>
+      <p class="err" id="c-err" hidden></p>
+      <div class="composer-foot">
+        <div class="quick">
+          <span>Fällig:</span>
+          <button type="button" class="chip" data-due="0">Heute</button>
+          <button type="button" class="chip" data-due="1">Morgen</button>
+          <button type="button" class="chip" data-due="fri">Freitag</button>
+          <button type="button" class="chip" data-due="7">In 1 Woche</button>
+          <button type="button" class="link-btn" id="c-note-toggle">+ Notiz</button>
+        </div>
+        <button class="btn" type="submit" id="c-submit">Aufgabe anlegen</button>
+      </div>
+    </form>
+
+    <div class="toolbar">
+      <div class="active-filter"><strong id="view-title">Alle Kategorien</strong></div>
+      <div class="tabs" role="group" aria-label="Status">
+        <button type="button" data-status="open" aria-pressed="true">Offen</button>
+        <button type="button" data-status="done" aria-pressed="false">Erledigt</button>
+        <button type="button" data-status="all" aria-pressed="false">Alle</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="tools">
+        <input id="q" type="search" class="input" placeholder="Suchen …" aria-label="Aufgaben durchsuchen">
+        <select id="f-prio" class="input" aria-label="Nach Priorität filtern">
+          <option value="all">Jede Priorität</option>
+          <option value="hoch">Nur Hoch</option>
+          <option value="mittel">Nur Mittel</option>
+          <option value="niedrig">Nur Niedrig</option>
+        </select>
+        <select id="f-sort" class="input" aria-label="Sortierung">
+          <option value="due">Nach Fälligkeit</option>
+          <option value="prio">Nach Priorität</option>
+          <option value="created">Neueste zuerst</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="list" class="groups" aria-live="polite">
+      <div class="empty"><strong>Lade deine Aufgaben …</strong></div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <form class="sheet" id="edit" role="dialog" aria-modal="true" aria-labelledby="e-h" novalidate>
+    <h2 id="e-h">Aufgabe bearbeiten</h2>
+    <div class="field">
+      <label for="e-title">Titel</label>
+      <input id="e-title" type="text" class="input" maxlength="200">
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label for="e-cat">Kategorie</label>
+        <select id="e-cat" class="input"></select>
+      </div>
+      <div class="field">
+        <span class="lbl" id="e-prio-lbl">Priorität</span>
+        <div class="prio-seg" role="radiogroup" aria-labelledby="e-prio-lbl">
+          <label><input type="radio" name="e-prio" id="e-prio-hoch" value="hoch"><span class="pip hoch"></span>Hoch</label>
+          <label><input type="radio" name="e-prio" id="e-prio-mittel" value="mittel"><span class="pip mittel"></span>Mittel</label>
+          <label><input type="radio" name="e-prio" id="e-prio-niedrig" value="niedrig"><span class="pip niedrig"></span>Niedrig</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="e-start">Start</label>
+        <input id="e-start" type="date" class="input">
+      </div>
+      <div class="field">
+        <label for="e-end">Ende / fällig</label>
+        <input id="e-end" type="date" class="input">
+      </div>
+    </div>
+    <div class="field">
+      <label for="e-note">Notiz</label>
+      <textarea id="e-note" class="input" maxlength="2000"></textarea>
+    </div>
+    <p class="err" id="e-err" hidden></p>
+    <div class="actions">
+      <button type="button" class="btn danger" id="e-del">Löschen</button>
+      <div>
+        <button type="button" class="btn ghost" id="e-cancel">Abbrechen</button>
+        <button type="submit" class="btn">Speichern</button>
+      </div>
+    </div>
   </form>
+</div>
 
-  <div class="filters" role="group" aria-label="Filter">
-    <button data-filter="all" aria-pressed="true">Alle</button>
-    <button data-filter="open" aria-pressed="false">Offen</button>
-    <button data-filter="done" aria-pressed="false">Erledigt</button>
-  </div>
-
-  <ul id="list"></ul>
-
-  <footer>
-    <span id="count"></span>
-    <button id="clear" type="button">Erledigte löschen</button>
-  </footer>
-</main>
+<div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" id="toast-undo">Rückgängig</button></div>
 
 <script>
-  const KEY = "todos-v1";
-  let todos = load();
-  let filter = "all";
-
+(() => {
   const $ = (s) => document.querySelector(s);
-  const list = $("#list"), input = $("#input");
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const LOCAL_KEY = "todos-v2";
 
-  function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(todos)); } catch {}
+  const BASE_CATS = [
+    { id: "trading", name: "Trading", k: 1 },
+    { id: "techniker", name: "Techniker", k: 2 },
+    { id: "fitness", name: "Fitness", k: 3 },
+    { id: "arbeit", name: "Arbeit", k: 4 },
+    { id: "privat", name: "Privat", k: 5 },
+    { id: "finanzen", name: "Finanzen", k: 6 },
+    { id: "lernen", name: "Lernen", k: 7 },
+    { id: "haushalt", name: "Haushalt", k: 8 },
+  ];
+  const PRIOS = { hoch: { label: "Hoch", rank: 0 }, mittel: { label: "Mittel", rank: 1 }, niedrig: { label: "Niedrig", rank: 2 } };
+  const GROUPS = [
+    ["overdue", "Überfällig"], ["today", "Heute fällig"], ["running", "Läuft gerade"], ["week", "Nächste 7 Tage"],
+    ["later", "Später"], ["nodate", "Ohne Datum"], ["done", "Erledigt"],
+  ];
+
+  const state = {
+    todos: [], customCats: [], loaded: false,
+    cat: "all", status: "open", prio: "all", sort: "due", q: "",
+  };
+  let store = null, metaRef = null, readOnly = false, editing = null;
+
+  // ---------- Datum ----------
+  const today = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+  const parseDay = (s) => { if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const days = (a, b) => Math.round((a - b) / 864e5);
+  const fmtShort = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+  const fmtLong = new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  // ---------- Kategorien ----------
+  const allCats = () => [...BASE_CATS, ...state.customCats];
+  const catOf = (id) => allCats().find((c) => c.id === id) || { id, name: "Sonstiges", k: 10 };
+  const kVar = (c) => `var(--k${c.k})`;
+
+  // ---------- Speichern ----------
+  const local = {
+    load() { try { const v = JSON.parse(localStorage.getItem(LOCAL_KEY)); return v && typeof v === "object" ? v : null; } catch { return null; } },
+    save() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ todos: state.todos, customCats: state.customCats })); } catch {} },
+  };
+
+  function setStatus(text, kind) {
+    const el = $("#status-side");
+    el.textContent = text || "";
+    el.className = "foot status";
+    if (kind) el.dataset.kind = kind; else delete el.dataset.kind;
   }
 
-  function render() {
-    const shown = todos.filter((t) => filter === "all" || (filter === "done") === t.done);
-    list.replaceChildren();
-    if (!shown.length) {
-      const li = document.createElement("li");
-      li.className = "empty";
-      li.textContent = todos.length ? "Nichts in dieser Ansicht." : "Noch keine Aufgaben – leg los!";
-      list.append(li);
+  async function write(fn) {
+    try { await fn(); return true; }
+    catch (e) {
+      if (e && e.code === "invalid_argument") { readOnly = true; applyReadOnly(); setStatus("Nur Lesezugriff – Änderungen werden nicht gespeichert.", "error"); }
+      else if (e && e.code === "quota_exceeded") setStatus("Speicher voll. Lösche erledigte Aufgaben, um Platz zu schaffen.", "error");
+      else setStatus("Konnte nicht speichern. Versuch es gleich noch einmal.", "error");
+      return false;
     }
-    for (const t of shown) {
-      const li = document.createElement("li");
-      li.classList.toggle("done", t.done);
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = t.done;
-      cb.setAttribute("aria-label", "Erledigt");
-      cb.addEventListener("change", () => { t.done = cb.checked; update(); });
-
-      const span = document.createElement("span");
-      span.className = "text";
-      span.textContent = t.text;
-      span.addEventListener("dblclick", () => startEdit(li, span, t));
-
-      const del = document.createElement("button");
-      del.className = "del";
-      del.textContent = "×";
-      del.setAttribute("aria-label", "Löschen");
-      del.addEventListener("click", () => { todos = todos.filter((x) => x !== t); update(); });
-
-      li.append(cb, span, del);
-      list.append(li);
-    }
-    const open = todos.filter((t) => !t.done).length;
-    $("#count").textContent = `${open} offen · ${todos.length - open} erledigt`;
-    $("#clear").hidden = !todos.some((t) => t.done);
   }
 
-  function startEdit(li, span, t) {
-    const field = document.createElement("input");
-    field.type = "text";
-    field.className = "edit";
-    field.value = t.text;
-    span.replaceWith(field);
-    field.focus();
-    let finished = false;
-    const finish = (commit) => {
-      if (finished) return;
-      finished = true;
-      const v = field.value.trim();
-      if (commit) {
-        if (v) t.text = v;
-        else todos = todos.filter((x) => x !== t);
-      }
-      update();
+  const localId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const api = {
+    add(t) {
+      if (store) return write(() => store.add(t));
+      state.todos.push({ id: localId(), ...t }); local.save(); render();
+    },
+    patch(t, fields) {
+      if (store) return write(() => store.doc(t.id).update(fields));
+      Object.assign(t, fields); local.save(); render();
+    },
+    remove(t) {
+      const { id, ...data } = t;
+      const done = () => toast(`„${truncate(t.text, 32)}“ gelöscht`, () => api.restore(id, data));
+      if (store) return write(() => store.doc(id).delete()).then((ok) => ok && done());
+      state.todos = state.todos.filter((x) => x.id !== id); local.save(); render(); done();
+    },
+    restore(id, data) {
+      if (store) return write(() => store.doc(id).set(data));
+      state.todos.push({ id, ...data }); local.save(); render();
+    },
+    saveCats() {
+      if (store) return write(() => metaRef.set({ customCats: state.customCats }));
+      local.save(); renderCats(); fillCatSelects();
+    },
+  };
+
+  const truncate = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+  // ---------- Normalisieren ----------
+  function norm(raw, id) {
+    return {
+      id,
+      text: String(raw.text || "").slice(0, 200) || "Ohne Titel",
+      done: !!raw.done,
+      created: Number(raw.created) || 0,
+      doneAt: Number(raw.doneAt) || 0,
+      category: typeof raw.category === "string" ? raw.category : "privat",
+      priority: PRIOS[raw.priority] ? raw.priority : "mittel",
+      start: parseDay(raw.start) ? raw.start : "",
+      end: parseDay(raw.end) ? raw.end : "",
+      note: typeof raw.note === "string" ? raw.note : "",
     };
-    field.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") finish(true);
-      if (e.key === "Escape") finish(false);
-    });
-    field.addEventListener("blur", () => finish(true));
   }
 
-  function update() { save(); render(); }
+  function bucket(t, now) {
+    if (t.done) return "done";
+    const e = parseDay(t.end), s = parseDay(t.start);
+    if (e) {
+      const n = days(e, now);
+      if (n < 0) return "overdue";
+      if (n === 0) return "today";
+      if (s && days(s, now) <= 0) return "running";
+      return n <= 7 ? "week" : "later";
+    }
+    if (s) return days(s, now) <= 0 ? "running" : days(s, now) <= 7 ? "week" : "later";
+    return "nodate";
+  }
 
-  $("#form").addEventListener("submit", (e) => {
+  function relLabel(t, now) {
+    const e = parseDay(t.end), s = parseDay(t.start);
+    if (t.done) return t.doneAt ? { text: "erledigt " + fmtShort.format(new Date(t.doneAt)), cls: "" } : null;
+    if (s && days(s, now) > 0) {
+      const n = days(s, now);
+      return { text: n === 1 ? "startet morgen" : `startet in ${n} Tagen`, cls: "" };
+    }
+    if (e) {
+      const n = days(e, now);
+      if (n < 0) return { text: `${plural(-n, "Tag", "Tage")} überfällig`, cls: "overdue" };
+      if (n === 0) return { text: "heute fällig", cls: "today" };
+      if (n === 1) return { text: "morgen fällig", cls: "running" };
+      return { text: `noch ${n} Tage`, cls: s ? "running" : "" };
+    }
+    if (s) return { text: "läuft seit " + fmtShort.format(s), cls: "running" };
+    return null;
+  }
+
+  // ---------- Rendern ----------
+  function visible() {
+    const q = state.q.trim().toLowerCase();
+    return state.todos.filter((t) =>
+      (state.cat === "all" || t.category === state.cat) &&
+      (state.prio === "all" || t.priority === state.prio) &&
+      (state.status === "all" || (state.status === "done") === t.done) &&
+      (!q || t.text.toLowerCase().includes(q) || t.note.toLowerCase().includes(q)));
+  }
+
+  function sorter(a, b) {
+    const pr = PRIOS[a.priority].rank - PRIOS[b.priority].rank;
+    const due = (t) => t.end || t.start || "9999-99-99";
+    if (state.sort === "created") return b.created - a.created;
+    if (state.sort === "prio") return pr || due(a).localeCompare(due(b)) || a.created - b.created;
+    if (a.done && b.done) return b.doneAt - a.doneAt;
+    return due(a).localeCompare(due(b)) || pr || a.created - b.created;
+  }
+
+  function renderStats(now) {
+    const open = state.todos.filter((t) => !t.done);
+    $("#s-open").textContent = open.length;
+    $("#s-today").textContent = open.filter((t) => bucket(t, now) === "today").length;
+    $("#s-over").textContent = open.filter((t) => bucket(t, now) === "overdue").length;
+    $("#s-done").textContent = state.todos.length - open.length;
+  }
+
+  function renderCats() {
+    const ul = $("#cats");
+    ul.replaceChildren();
+    const openCount = (id) => state.todos.filter((t) => !t.done && (id === "all" || t.category === id)).length;
+    const entries = [{ id: "all", name: "Alle Kategorien", k: 0 }, ...allCats()];
+    for (const c of entries) {
+      const li = document.createElement("li");
+      li.className = "cat-row";
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "cat-btn";
+      b.setAttribute("aria-pressed", String(state.cat === c.id));
+      if (c.k) b.style.setProperty("--k", kVar(c));
+      const dot = document.createElement("span"); dot.className = "dot";
+      const name = document.createElement("span"); name.className = "name"; name.textContent = c.name;
+      const n = document.createElement("span"); n.className = "n"; n.textContent = openCount(c.id);
+      b.append(dot, name, n);
+      b.addEventListener("click", () => { state.cat = c.id; if (c.id !== "all") $("#c-cat").value = c.id; renderAll(); });
+      li.append(b);
+      if (state.customCats.some((x) => x.id === c.id) && !readOnly) {
+        const del = document.createElement("button");
+        del.type = "button"; del.className = "cat-del"; del.textContent = "×";
+        del.setAttribute("aria-label", `Kategorie ${c.name} entfernen`);
+        del.title = "Kategorie entfernen (Aufgaben bleiben erhalten)";
+        del.addEventListener("click", () => {
+          state.customCats = state.customCats.filter((x) => x.id !== c.id);
+          if (state.cat === c.id) state.cat = "all";
+          api.saveCats(); renderAll();
+        });
+        li.append(del);
+      }
+      ul.append(li);
+    }
+  }
+
+  function fillCatSelects() {
+    for (const sel of [$("#c-cat"), $("#e-cat")]) {
+      const keep = sel.value;
+      sel.replaceChildren(...allCats().map((c) => new Option(c.name, c.id)));
+      if (keep && allCats().some((c) => c.id === keep)) sel.value = keep;
+    }
+    if (!$("#c-cat").value) $("#c-cat").value = "privat";
+  }
+
+  const checkSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function taskEl(t, now) {
+    const li = document.createElement("li");
+    li.className = `task p-${t.priority}` + (t.done ? " done" : "");
+
+    const cb = document.createElement("button");
+    cb.type = "button"; cb.className = "check";
+    cb.setAttribute("role", "checkbox");
+    cb.setAttribute("aria-checked", String(t.done));
+    cb.setAttribute("aria-label", `Erledigt: ${t.text}`);
+    cb.innerHTML = checkSvg;
+    cb.disabled = readOnly;
+    cb.addEventListener("click", () => api.patch(t, t.done ? { done: false, doneAt: 0 } : { done: true, doneAt: Date.now() }));
+
+    const body = document.createElement("button");
+    body.type = "button"; body.className = "t-body";
+    body.setAttribute("aria-label", `${t.text} bearbeiten`);
+    body.disabled = readOnly;
+    const title = document.createElement("div"); title.className = "t-title"; title.textContent = t.text;
+    body.append(title);
+
+    if (t.note) { const note = document.createElement("div"); note.className = "t-note"; note.textContent = t.note; body.append(note); }
+
+    const meta = document.createElement("div"); meta.className = "t-meta";
+    const c = catOf(t.category);
+    const pill = document.createElement("span"); pill.className = "pill"; pill.style.setProperty("--k", kVar(c)); pill.textContent = c.name;
+    meta.append(pill);
+    const pt = document.createElement("span"); pt.className = "prio-tag " + t.priority;
+    pt.innerHTML = `<span class="pip ${t.priority}"></span>`;
+    pt.append(PRIOS[t.priority].label);
+    meta.append(pt);
+
+    const s = parseDay(t.start), e = parseDay(t.end);
+    if (s || e) {
+      const d = document.createElement("span"); d.className = "dates";
+      d.textContent = s && e ? `${fmtShort.format(s)} → ${fmtShort.format(e)}` : s ? `ab ${fmtShort.format(s)}` : `bis ${fmtShort.format(e)}`;
+      meta.append(d);
+    }
+    const rel = relLabel(t, now);
+    if (rel) { const r = document.createElement("span"); r.className = "rel " + rel.cls; r.textContent = rel.text; meta.append(r); }
+    body.append(meta);
+
+    if (s && e && !t.done && days(e, s) > 0 && days(now, s) >= 0) {
+      const pct = Math.min(100, Math.max(0, (days(now, s) / days(e, s)) * 100));
+      const bar = document.createElement("div"); bar.className = "span";
+      bar.title = `${Math.round(pct)} % der Zeit vergangen`;
+      bar.innerHTML = "<i></i>";
+      bar.firstChild.style.setProperty("--w", pct + "%");
+      body.append(bar);
+    }
+    body.addEventListener("click", () => openEdit(t));
+
+    const more = document.createElement("button");
+    more.type = "button"; more.className = "t-edit"; more.textContent = "Bearbeiten";
+    more.hidden = readOnly;
+    more.addEventListener("click", () => openEdit(t));
+
+    li.append(cb, body, more);
+    return li;
+  }
+
+  function renderList(now) {
+    const list = $("#list");
+    if (!state.loaded) return;
+    const items = visible().sort(sorter);
+    list.replaceChildren();
+    if (!items.length) {
+      const box = document.createElement("div"); box.className = "empty";
+      const h = document.createElement("strong");
+      const p = document.createElement("span");
+      if (!state.todos.length) { h.textContent = "Noch keine Aufgaben"; p.textContent = "Schreib oben deine erste Aufgabe hinein und wähle Kategorie, Priorität und Zeitraum."; }
+      else if (state.status === "open") { h.textContent = "Alles erledigt"; p.textContent = "In dieser Ansicht ist nichts mehr offen."; }
+      else { h.textContent = "Keine Treffer"; p.textContent = "Ändere Kategorie, Filter oder Suche."; }
+      box.append(h, p); list.append(box); return;
+    }
+    const grouped = state.sort === "due";
+    const sections = grouped
+      ? GROUPS.map(([key, label]) => [key, label, items.filter((t) => bucket(t, now) === key)]).filter((g) => g[2].length)
+      : [["all", state.sort === "prio" ? "Nach Priorität" : "Neueste zuerst", items]];
+    for (const [key, label, arr] of sections) {
+      const sec = document.createElement("section"); sec.className = "group " + key;
+      const h = document.createElement("h3"); h.textContent = label;
+      const n = document.createElement("span"); n.className = "n"; n.textContent = arr.length; h.append(n);
+      const ul = document.createElement("ul"); ul.className = "tasks";
+      arr.forEach((t) => ul.append(taskEl(t, now)));
+      sec.append(h, ul); list.append(sec);
+    }
+  }
+
+  function renderAll() {
+    const now = today();
+    $("#view-title").textContent = state.cat === "all" ? "Alle Kategorien" : catOf(state.cat).name;
+    renderStats(now); renderCats(); renderList(now);
+  }
+  const render = renderAll;
+
+  // ---------- Formulare ----------
+  function readForm(p) {
+    const title = $(`#${p}-title`).value.trim();
+    const start = $(`#${p}-start`).value, end = $(`#${p}-end`).value;
+    const prio = (document.querySelector(`input[name="${p}-prio"]:checked`) || {}).value || "mittel";
+    const errEl = $(`#${p}-err`);
+    let err = "";
+    if (!title) err = "Gib der Aufgabe einen Titel.";
+    else if (start && end && end < start) err = "Das Enddatum liegt vor dem Start. Wähle ein späteres Ende.";
+    $(`#${p}-end`).setAttribute("aria-invalid", String(!!(start && end && end < start)));
+    errEl.textContent = err; errEl.hidden = !err;
+    if (err) { (title ? $(`#${p}-end`) : $(`#${p}-title`)).focus(); return null; }
+    return { text: title, category: $(`#${p}-cat`).value || "privat", priority: prio, start, end, note: $(`#${p}-note`).value.trim() };
+  }
+
+  $("#composer").addEventListener("submit", (e) => {
     e.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-    todos.push({ id: Date.now(), text, done: false });
-    input.value = "";
-    update();
+    if (readOnly || !state.loaded) return;
+    const data = readForm("c");
+    if (!data) return;
+    api.add({ ...data, done: false, doneAt: 0, created: Date.now() });
+    $("#c-title").value = ""; $("#c-note").value = ""; $("#c-start").value = ""; $("#c-end").value = "";
+    $("#c-note-wrap").hidden = true; $("#c-note-toggle").hidden = false;
+    if (state.status === "done") setStatusTab("open");
+    $("#c-title").focus();
   });
 
-  document.querySelectorAll(".filters button").forEach((b) =>
-    b.addEventListener("click", () => {
-      filter = b.dataset.filter;
-      document.querySelectorAll(".filters button").forEach((x) =>
-        x.setAttribute("aria-pressed", String(x === b)));
-      render();
-    }));
+  $("#c-title").addEventListener("input", () => { $("#c-err").hidden = true; });
 
-  $("#clear").addEventListener("click", () => { todos = todos.filter((t) => !t.done); update(); });
+  $$(".chip[data-due]").forEach((b) => b.addEventListener("click", () => {
+    const d = today();
+    const v = b.dataset.due;
+    if (v === "fri") { const add = (5 - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate() + add); }
+    else d.setDate(d.getDate() + Number(v));
+    $("#c-end").value = iso(d);
+    const s = $("#c-start").value;
+    if (s && s > iso(d)) $("#c-start").value = "";
+  }));
 
-  render();
-  input.focus();
+  $("#c-note-toggle").addEventListener("click", () => {
+    $("#c-note-wrap").hidden = false; $("#c-note-toggle").hidden = true; $("#c-note").focus();
+  });
+
+  // Bearbeiten
+  let lastFocus = null;
+  function openEdit(t) {
+    if (readOnly) return;
+    editing = t; lastFocus = document.activeElement;
+    $("#e-title").value = t.text;
+    fillCatSelects();
+    if (!allCats().some((c) => c.id === t.category)) $("#e-cat").append(new Option("Sonstiges", t.category));
+    $("#e-cat").value = t.category;
+    document.getElementById("e-prio-" + t.priority).checked = true;
+    $("#e-start").value = t.start; $("#e-end").value = t.end; $("#e-note").value = t.note;
+    $("#e-err").hidden = true; $("#e-end").setAttribute("aria-invalid", "false");
+    $("#overlay").hidden = false;
+    $("#e-title").focus();
+  }
+  function closeEdit() {
+    $("#overlay").hidden = true; editing = null;
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  }
+  $("#edit").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!editing) return;
+    const data = readForm("e");
+    if (!data) return;
+    const t = editing;
+    const changed = Object.fromEntries(Object.entries(data).filter(([k, v]) => t[k] !== v));
+    closeEdit();
+    if (Object.keys(changed).length) api.patch(t, changed);
+  });
+  $("#e-cancel").addEventListener("click", closeEdit);
+  $("#e-del").addEventListener("click", () => { const t = editing; closeEdit(); if (t) api.remove(t); });
+  $("#overlay").addEventListener("mousedown", (e) => { if (e.target === e.currentTarget) closeEdit(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#overlay").hidden) closeEdit();
+    if (e.key === "Tab" && !$("#overlay").hidden) {
+      const f = $$("#edit input, #edit select, #edit textarea, #edit button").filter((x) => !x.disabled && x.offsetParent);
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // Filter
+  function setStatusTab(v) {
+    state.status = v;
+    $$(".tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.status === v)));
+  }
+  $$(".tabs button").forEach((b) => b.addEventListener("click", () => { setStatusTab(b.dataset.status); renderAll(); }));
+  $("#f-prio").addEventListener("change", (e) => { state.prio = e.target.value; renderAll(); });
+  $("#f-sort").addEventListener("change", (e) => { state.sort = e.target.value; renderAll(); });
+  $("#q").addEventListener("input", (e) => { state.q = e.target.value; renderList(today()); });
+  $$(".stat").forEach((b) => b.addEventListener("click", () => {
+    const j = b.dataset.jump;
+    state.cat = "all"; state.prio = "all"; $("#f-prio").value = "all"; state.sort = "due"; $("#f-sort").value = "due";
+    setStatusTab(j === "done" ? "done" : "open");
+    renderAll();
+    if (j === "today" || j === "overdue") document.querySelector(".group." + j)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+
+  // Neue Kategorie
+  $("#newcat").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (readOnly) return;
+    const name = $("#newcat-name").value.trim().slice(0, 24);
+    if (!name) return;
+    const existing = allCats().find((c) => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) { state.cat = existing.id; $("#newcat-name").value = ""; renderAll(); return; }
+    const used = new Set(allCats().map((c) => c.k));
+    const k = [9, 10, 1, 2, 3, 4, 5, 6, 7, 8].find((n) => !used.has(n)) || ((state.customCats.length % 10) + 1);
+    const id = "c-" + localId();
+    state.customCats = [...state.customCats, { id, name, k }];
+    state.cat = id;
+    $("#newcat-name").value = "";
+    api.saveCats(); fillCatSelects(); $("#c-cat").value = id; renderAll();
+  });
+
+  // Toast
+  let toastTimer = null, undoFn = null;
+  function toast(text, undo) {
+    $("#toast-text").textContent = text;
+    undoFn = undo; $("#toast-undo").hidden = !undo;
+    $("#toast").hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $("#toast").hidden = true; undoFn = null; }, 6000);
+  }
+  $("#toast-undo").addEventListener("click", () => { if (undoFn) undoFn(); undoFn = null; $("#toast").hidden = true; });
+
+  function applyReadOnly() {
+    $$("#composer input, #composer select, #composer textarea, #composer button, #newcat input, #newcat button")
+      .forEach((el) => { el.disabled = readOnly; });
+    renderAll();
+  }
+
+  // ---------- Start ----------
+  function startLocal(note) {
+    store = null; metaRef = null;
+    const saved = local.load() || {};
+    state.todos = (saved.todos || []).map((t) => norm(t, t.id || localId()));
+    state.customCats = Array.isArray(saved.customCats) ? saved.customCats : [];
+    state.loaded = true;
+    if (note) setStatus(note);
+    fillCatSelects(); renderAll();
+  }
+
+  async function start() {
+    $("#today").textContent = fmtLong.format(new Date());
+    fillCatSelects(); renderAll();
+    const db = window.claude?.use ? await window.claude.use("db").catch(() => null) : null;
+    if (!db) { startLocal("Gespeichert nur in diesem Browser."); return; }
+    store = db.collection("todos");
+    metaRef = db.doc("meta/settings");
+
+    const user = await window.claude.use("user").catch(() => null);
+    let canWrite = null;
+    try { canWrite = user ? await user.can("data.write") : null; } catch {}
+    if (canWrite === false) { readOnly = true; applyReadOnly(); setStatus("Nur Lesezugriff."); }
+    else setStatus("Synchronisiert über alle deine Geräte.");
+
+    metaRef.onSnapshot((snap) => {
+      const d = snap.exists ? snap.data() : null;
+      state.customCats = d && Array.isArray(d.customCats)
+        ? d.customCats.filter((c) => c && typeof c.id === "string" && typeof c.name === "string").map((c) => ({ id: c.id, name: c.name.slice(0, 24), k: Math.min(10, Math.max(1, Number(c.k) || 9)) }))
+        : [];
+      fillCatSelects(); renderAll();
+    }, () => {});
+
+    store.onSnapshot((snap) => {
+      state.todos = snap.docs.map((d) => norm(d.data() || {}, d.id));
+      state.loaded = true;
+      renderAll();
+    }, () => startLocal("Verbindung verloren – Änderungen gelten nur in diesem Browser."));
+  }
+
+  // Tageswechsel: Fälligkeiten neu berechnen
+  setInterval(() => { const d = iso(today()); if (d !== start.day) { start.day = d; $("#today").textContent = fmtLong.format(new Date()); renderAll(); } }, 60000);
+  start.day = iso(today());
+
+  start();
+})();
 </script>
+
 </body>
 </html>
