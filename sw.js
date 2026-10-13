@@ -1,13 +1,12 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei jeder Änderung an der App VERSION erhöhen, damit Geräte die neue Fassung laden.
-const VERSION = "todo-v1";
+const VERSION = "todo-v2";
 const SHELL = [
   "./",
   "./index.html",
   "./config.js",
   "./manifest.webmanifest",
   "./vendor/supabase.js",
-  "./vendor/591.supabase.js",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

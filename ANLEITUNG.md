@@ -80,6 +80,6 @@ Fertig. Änderungen erscheinen auf dem anderen Gerät innerhalb von Sekunden, sp
 | `config.js` | Supabase-Zugangsdaten (optional) |
 | `manifest.webmanifest`, `icons/` | Name und Symbol auf dem Home-Bildschirm |
 | `sw.js` | Offline-Unterstützung |
-| `vendor/supabase.js` | Supabase-Bibliothek (MIT-Lizenz, Version 2.45.4) |
+| `vendor/supabase.js` | Supabase-Bibliothek (MIT-Lizenz, Version 2.117.2) |
 | `supabase/schema.sql` | Datenbank-Tabellen und Zugriffsregeln |
 | `netlify.toml` | Einstellungen fürs Hosting |
