@@ -34,7 +34,7 @@ Netlify hostet die App kostenlos und funktioniert auch mit privaten GitHub-Repos
 4. Einstellungen:
    - **Branch to deploy:** `main` (oder `claude/practical-planck-bgfxcg`, falls noch nicht gemergt)
    - **Build command:** leer lassen
-   - **Publish directory:** `.`
+   - **Publish directory:** egal – `netlify.toml` legt `public` fest
 5. **Deploy** klicken. Nach etwa einer Minute bekommst du eine Adresse wie `https://xyz-123.netlify.app`.
    Unter **Site configuration → Change site name** kannst du sie z. B. in `https://tims-todos.netlify.app` ändern.
 6. Zurück in Supabase: **Authentication → URL Configuration → Site URL** auf deine Netlify-Adresse setzen und speichern. So führt der Bestätigungslink aus der Anmelde-E-Mail zur App.
@@ -63,6 +63,25 @@ Fertig. Änderungen erscheinen auf dem anderen Gerät innerhalb von Sekunden, sp
 
 ---
 
+## Benachrichtigungen einrichten (einmalig, ca. 5 Min.)
+
+Damit du Tagesüberblick, „Startet heute“ und Erinnerungen mit Uhrzeit bekommst:
+
+1. **Datenbank erweitern:** In Supabase den **SQL Editor** öffnen, den Inhalt von [`supabase/benachrichtigungen.sql`](supabase/benachrichtigungen.sql) einfügen und **Run** drücken („Success. No rows returned“ ist richtig).
+2. **Geheimen Server-Schlüssel kopieren:** In Supabase **Project Settings → API Keys**, Bereich **Secret keys**, den Schlüssel `sb_secret_…` kopieren (Auge-Symbol / Kopieren).
+   ⚠️ Diesen Schlüssel nie in die App, in Chats oder ins Repo kopieren – nur in Netlify.
+3. **In Netlify hinterlegen:** **Project configuration → Environment variables → Add a variable → Add a single variable**
+   - **Key:** `SUPABASE_SECRET_KEY`
+   - **Value:** den kopierten `sb_secret_…`-Schlüssel
+   - **Create variable**
+4. **Neu veröffentlichen:** **Deploys → Trigger deploy → Deploy project**.
+5. **Auf iPhone und iPad:** Die App **über das Symbol auf dem Home-Bildschirm** öffnen (in Safari selbst geht es nicht) → in der Seitenleiste unten **Benachrichtigungen** → **Auf diesem Gerät erlauben** → bei der iOS-Abfrage **Erlauben**. Danach **Test senden**: Nach ein paar Sekunden sollte eine Mitteilung erscheinen.
+6. Tagesüberblick, „Startet heute“ und die Uhrzeit einstellen → **Speichern**.
+
+Erinnerungen setzt du pro Aufgabe über **+ Erinnerung** (oder im Bearbeiten-Fenster). Der Server prüft alle 5 Minuten, Erinnerungen kommen also bis zu 5 Minuten nach der eingestellten Zeit.
+
+Voraussetzung: iOS/iPadOS 16.4 oder neuer. Mitteilungen lassen sich jederzeit in den iPhone-Einstellungen unter **Mitteilungen → To-dos** abschalten.
+
 ## Gut zu wissen
 
 - **Offline:** Du kannst ohne Netz Aufgaben anlegen, abhaken und ändern. Unten in der Seitenleiste steht „Offline – n Änderungen warten“. Sobald wieder Netz da ist, wird alles übertragen.
@@ -76,10 +95,13 @@ Fertig. Änderungen erscheinen auf dem anderen Gerät innerhalb von Sekunden, sp
 
 | Datei | Zweck |
 | --- | --- |
-| `index.html` | Die komplette App |
-| `config.js` | Supabase-Zugangsdaten (optional) |
-| `manifest.webmanifest`, `icons/` | Name und Symbol auf dem Home-Bildschirm |
-| `sw.js` | Offline-Unterstützung |
-| `vendor/supabase.js` | Supabase-Bibliothek (MIT-Lizenz, Version 2.117.2) |
-| `supabase/schema.sql` | Datenbank-Tabellen und Zugriffsregeln |
-| `netlify.toml` | Einstellungen fürs Hosting |
+| `public/index.html` | Die komplette App |
+| `public/config.js` | Supabase-Adresse und öffentlicher Schlüssel |
+| `public/manifest.webmanifest`, `public/icons/` | Name und Symbol auf dem Home-Bildschirm |
+| `public/sw.js` | Offline-Unterstützung und Empfang von Benachrichtigungen |
+| `public/vendor/supabase.js` | Supabase-Bibliothek (MIT-Lizenz, Version 2.117.2) |
+| `netlify/functions/send-reminders.mjs` | Läuft alle 5 Minuten und verschickt Erinnerungen und den Morgen-Überblick |
+| `netlify/functions/push-api.mjs` | Schnittstelle für „Auf diesem Gerät erlauben“ und „Test senden“ |
+| `supabase/schema.sql` | Komplette Datenbank (für neue Projekte) |
+| `supabase/benachrichtigungen.sql` | Nachrüstung für Benachrichtigungen |
+| `netlify.toml`, `package.json` | Einstellungen fürs Hosting |

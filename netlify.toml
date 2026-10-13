@@ -1,8 +1,14 @@
-# Netlify: statische Seite, kein Build nötig.
+# Netlify: Web-App aus public/, Server-Funktionen aus netlify/functions/.
+# Diese Datei hat Vorrang vor den Einstellungen in der Netlify-Oberfläche.
 [build]
-  publish = "."
+  publish = "public"
+  command = ""
 
-# Service Worker und Konfiguration nie zwischenspeichern, damit Updates sofort ankommen.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Service Worker, Konfiguration und App-Seite nie zwischenspeichern, damit Updates sofort ankommen.
 [[headers]]
   for = "/sw.js"
   [headers.values]

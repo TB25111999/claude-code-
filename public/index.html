@@ -205,6 +205,25 @@
   .status { font-size: .82rem; color: var(--muted); }
   .status[data-kind="error"] { color: var(--danger); }
 
+  /* ---------- Erinnerungen & Benachrichtigungen ---------- */
+  [data-mode="local"] .needs-sync { display: none !important; }
+  .remind-row { display: flex; gap: 8px; }
+  .remind-row .input { flex: 1; }
+  .remind-row .btn { flex: none; padding-inline: 14px; }
+  .remind-tag { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--accent); }
+  .remind-tag.past { color: var(--muted); font-weight: 500; }
+  .remind-tag svg { width: 13px; height: 13px; flex: none; }
+  .remind-tag path { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .n-device { display: grid; gap: 10px; padding: 14px; border-radius: 14px; background: var(--accent-soft); }
+  .n-status { font-weight: 600; line-height: 1.4; }
+  .n-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .switch { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); cursor: pointer; }
+  .switch input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--accent); flex: none; }
+  .switch span { display: grid; gap: 2px; min-width: 0; }
+  .switch small { color: var(--muted); font-size: .86rem; }
+  .n-time .input { max-width: 170px; }
+  .hint { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+
   /* ---------- App auf iPhone / iPad ---------- */
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; min-height: 100vh; min-height: 100dvh; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
@@ -326,6 +345,7 @@
         <button type="button" class="side-btn" id="sync-now">Jetzt abgleichen</button>
         <button type="button" class="side-btn" id="export">Export</button>
         <button type="button" class="side-btn" id="import-btn">Import</button>
+        <button type="button" class="side-btn needs-sync" id="notify-btn">Benachrichtigungen</button>
         <button type="button" class="side-btn" id="setup-sync" hidden>Sync einrichten</button>
         <button type="button" class="side-btn" id="logout" hidden>Abmelden</button>
       </div>
@@ -365,6 +385,10 @@
         <label for="c-note">Notiz</label>
         <textarea id="c-note" class="input" maxlength="2000" placeholder="Details, Links, Zwischenschritte …"></textarea>
       </div>
+      <div class="field" id="c-remind-wrap" hidden>
+        <label for="c-remind">Erinnerung (Datum und Uhrzeit)</label>
+        <input id="c-remind" type="datetime-local" class="input">
+      </div>
       <p class="err" id="c-err" hidden></p>
       <div class="composer-foot">
         <div class="quick">
@@ -374,6 +398,7 @@
           <button type="button" class="chip" data-due="fri">Freitag</button>
           <button type="button" class="chip" data-due="7">In 1 Woche</button>
           <button type="button" class="link-btn" id="c-note-toggle">+ Notiz</button>
+          <button type="button" class="link-btn needs-sync" id="c-remind-toggle">+ Erinnerung</button>
         </div>
         <button class="btn" type="submit" id="c-submit">Aufgabe anlegen</button>
       </div>
@@ -439,6 +464,13 @@
         <input id="e-end" type="date" class="input">
       </div>
     </div>
+    <div class="field needs-sync">
+      <label for="e-remind">Erinnerung (Datum und Uhrzeit)</label>
+      <div class="remind-row">
+        <input id="e-remind" type="datetime-local" class="input">
+        <button type="button" class="btn ghost" id="e-remind-clear">Entfernen</button>
+      </div>
+    </div>
     <div class="field">
       <label for="e-note">Notiz</label>
       <textarea id="e-note" class="input" maxlength="2000"></textarea>
@@ -449,6 +481,40 @@
       <div>
         <button type="button" class="btn ghost" id="e-cancel">Abbrechen</button>
         <button type="submit" class="btn">Speichern</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="overlay" id="n-overlay" hidden>
+  <form class="sheet" id="n-form" role="dialog" aria-modal="true" aria-labelledby="n-h" novalidate>
+    <h2 id="n-h">Benachrichtigungen</h2>
+    <section class="n-device" aria-live="polite">
+      <div class="n-status" id="n-status">Prüfe dieses Gerät …</div>
+      <div class="n-row">
+        <button type="button" class="btn" id="n-enable" hidden>Auf diesem Gerät erlauben</button>
+        <button type="button" class="btn ghost" id="n-test" hidden>Test senden</button>
+      </div>
+    </section>
+    <label class="switch" for="n-digest">
+      <input type="checkbox" id="n-digest">
+      <span><b>Tagesüberblick</b><small>Morgens: was heute fällig und was überfällig ist</small></span>
+    </label>
+    <label class="switch" for="n-start">
+      <input type="checkbox" id="n-start">
+      <span><b>Startet heute</b><small>Aufgaben, deren Startdatum heute ist</small></span>
+    </label>
+    <div class="field n-time">
+      <label for="n-time">Uhrzeit für den Morgen</label>
+      <input id="n-time" type="time" class="input" value="07:00">
+    </div>
+    <p class="hint">Erinnerungen mit Uhrzeit stellst du direkt bei einer Aufgabe ein („+ Erinnerung“).</p>
+    <p class="err" id="n-err" hidden></p>
+    <div class="actions">
+      <span></span>
+      <div>
+        <button type="button" class="btn ghost" id="n-cancel">Schließen</button>
+        <button type="submit" class="btn" id="n-save">Speichern</button>
       </div>
     </div>
   </form>
@@ -498,6 +564,12 @@
   const fmtLong = new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const fmtTime = new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit" });
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const toLocalDT = (ms) => { const d = new Date(ms); return `${iso(d)}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+  const parseLocalDT = (v) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(v || "");
+    return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]).getTime() : 0;
+  };
   const truncate = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   function uuid() {
@@ -524,6 +596,7 @@
       start: parseDay(raw.start) ? raw.start : "",
       end: parseDay(raw.end) ? raw.end : "",
       note: typeof raw.note === "string" ? raw.note.slice(0, 2000) : "",
+      remindAt: Number(raw.remindAt) || 0,
     };
   }
   const cleanCats = (list) => (Array.isArray(list) ? list : [])
@@ -571,11 +644,13 @@
     text: t.text, done: t.done, done_at: t.doneAt ? new Date(t.doneAt).toISOString() : null,
     category: t.category, priority: t.priority, start_date: t.start || null, end_date: t.end || null,
     note: t.note, created_at: new Date(t.created).toISOString(), updated_at: new Date().toISOString(),
+    remind_at: t.remindAt ? new Date(t.remindAt).toISOString() : null,
   });
   const fromRow = (r) => norm({
     text: r.text, done: r.done, doneAt: r.done_at ? Date.parse(r.done_at) : 0,
     category: r.category, priority: r.priority, start: r.start_date || "", end: r.end_date || "",
     note: r.note || "", created: Date.parse(r.created_at) || Date.now(),
+    remindAt: r.remind_at ? Date.parse(r.remind_at) : 0,
   }, r.id);
 
   function queue(op) {
@@ -597,7 +672,13 @@
         if (op.type === "upsert") {
           const t = state.todos.find((x) => x.id === op.id);
           if (!t) { cache.outbox.shift(); continue; }
-          res = await sb.from("todos").upsert(toRow(t));
+          const row = toRow(t);
+          res = await sb.from("todos").upsert(row);
+          if (res.error && res.error.code === "PGRST204" && "remind_at" in row) {
+            delete row.remind_at;
+            res = await sb.from("todos").upsert(row);
+            setSync("error", "Erinnerungen brauchen noch das Datenbank-Update (supabase/benachrichtigungen.sql).");
+          }
         } else if (op.type === "delete") {
           res = await sb.from("todos").delete().eq("id", op.id);
         } else {
@@ -818,6 +899,7 @@
     if (!$("#c-cat").value) $("#c-cat").value = "privat";
   }
 
+  const bellSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 11V7.5a4 4 0 0 1 8 0V11l1.2 1.5H2.8L4 11z"/><path d="M6.6 14a1.5 1.5 0 0 0 2.8 0"/></svg>';
   const checkSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function taskEl(t, now) {
@@ -857,6 +939,15 @@
     }
     const rel = relLabel(t, now);
     if (rel) { const r = document.createElement("span"); r.className = "rel " + rel.cls; r.textContent = rel.text; meta.append(r); }
+    if (t.remindAt && !t.done) {
+      const rd = new Date(t.remindAt);
+      const r = document.createElement("span");
+      r.className = "remind-tag" + (t.remindAt < Date.now() ? " past" : "");
+      r.innerHTML = bellSvg;
+      r.append(`${fmtShort.format(rd)} ${pad2(rd.getHours())}:${pad2(rd.getMinutes())}`);
+      r.title = "Erinnerung";
+      meta.append(r);
+    }
     body.append(meta);
 
     if (s && e && !t.done && days(e, s) > 0 && days(now, s) >= 0) {
@@ -923,7 +1014,7 @@
     $(`#${p}-end`).setAttribute("aria-invalid", String(!!(start && end && end < start)));
     errEl.textContent = err; errEl.hidden = !err;
     if (err) { (title ? $(`#${p}-end`) : $(`#${p}-title`)).focus(); return null; }
-    return { text: title, category: $(`#${p}-cat`).value || "privat", priority: prio, start, end, note: $(`#${p}-note`).value.trim() };
+    return { text: title, category: $(`#${p}-cat`).value || "privat", priority: prio, start, end, note: $(`#${p}-note`).value.trim(), remindAt: parseLocalDT($(`#${p}-remind`).value) };
   }
 
   $("#composer").addEventListener("submit", (e) => {
@@ -933,6 +1024,7 @@
     api.add({ ...data, done: false, doneAt: 0, created: Date.now() });
     $("#c-title").value = ""; $("#c-note").value = ""; $("#c-start").value = ""; $("#c-end").value = "";
     $("#c-note-wrap").hidden = true; $("#c-note-toggle").hidden = false;
+    $("#c-remind").value = ""; $("#c-remind-wrap").hidden = true; $("#c-remind-toggle").hidden = false;
     if (state.status === "done") setStatusTab("open");
     $("#c-title").blur();
   });
@@ -948,6 +1040,16 @@
     if (s && s > iso(d)) $("#c-start").value = "";
   }));
 
+  $("#c-remind-toggle").addEventListener("click", () => {
+    $("#c-remind-wrap").hidden = false; $("#c-remind-toggle").hidden = true;
+    if (!$("#c-remind").value) {
+      const d = new Date(); d.setHours(d.getHours() + 1, 0, 0, 0);
+      $("#c-remind").value = toLocalDT(d.getTime());
+    }
+    $("#c-remind").focus();
+  });
+  $("#e-remind-clear").addEventListener("click", () => { $("#e-remind").value = ""; });
+
   $("#c-note-toggle").addEventListener("click", () => {
     $("#c-note-wrap").hidden = false; $("#c-note-toggle").hidden = true; $("#c-note").focus();
   });
@@ -961,6 +1063,7 @@
     $("#e-cat").value = t.category;
     document.getElementById("e-prio-" + t.priority).checked = true;
     $("#e-start").value = t.start; $("#e-end").value = t.end; $("#e-note").value = t.note;
+    $("#e-remind").value = t.remindAt ? toLocalDT(t.remindAt) : "";
     $("#e-err").hidden = true; $("#e-end").setAttribute("aria-invalid", "false");
     $("#overlay").hidden = false;
     document.body.style.overflow = "hidden";
@@ -1074,6 +1177,126 @@
     }
   });
 
+  // ---------- Benachrichtigungen ----------
+  const PUSH_OK = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const IS_STANDALONE = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+
+  function b64ToBytes(b64) {
+    const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  }
+  function sameKey(sub, publicKey) {
+    const cur = sub.options && sub.options.applicationServerKey;
+    if (!cur) return true;
+    const a = new Uint8Array(cur), b = b64ToBytes(publicKey);
+    return a.length === b.length && a.every((x, i) => x === b[i]);
+  }
+  async function currentSub() {
+    if (!PUSH_OK) return null;
+    const reg = await navigator.serviceWorker.getRegistration();
+    return reg ? reg.pushManager.getSubscription() : null;
+  }
+  async function deviceState() {
+    if (!PUSH_OK) return "unsupported";
+    if (Notification.permission === "denied") return "denied";
+    const sub = await currentSub().catch(() => null);
+    return sub && Notification.permission === "granted" ? "on" : "off";
+  }
+  function renderDevice(st) {
+    const text = {
+      unsupported: IS_IOS && !IS_STANDALONE
+        ? "Öffne die App über das Symbol auf deinem Home-Bildschirm. Nur dort erlaubt iOS Benachrichtigungen (ab iOS 16.4)."
+        : "Dieser Browser unterstützt keine Push-Benachrichtigungen.",
+      denied: "Benachrichtigungen sind blockiert. Erlaube sie in den Einstellungen deines Geräts unter Mitteilungen → To-dos.",
+      on: "Dieses Gerät bekommt Benachrichtigungen.",
+      off: "Dieses Gerät bekommt noch keine Benachrichtigungen.",
+    }[st];
+    $("#n-status").textContent = text;
+    $("#n-enable").hidden = st !== "off";
+    $("#n-test").hidden = st !== "on";
+  }
+  function nErr(text) { $("#n-err").textContent = text || ""; $("#n-err").hidden = !text; }
+
+  async function openNotify() {
+    nErr("");
+    $("#n-overlay").hidden = false;
+    document.body.style.overflow = "hidden";
+    renderDevice(await deviceState());
+    if (!sb || !session) return;
+    const { data, error } = await sb.from("notification_settings").select("digest_enabled, start_enabled, notify_time").maybeSingle();
+    if (error) { nErr(error.code === "42P01" || /notification_settings/.test(error.message) ? "In Supabase fehlt noch das Datenbank-Update (supabase/benachrichtigungen.sql)." : "Einstellungen konnten nicht geladen werden."); return; }
+    $("#n-digest").checked = data ? data.digest_enabled : true;
+    $("#n-start").checked = data ? data.start_enabled : true;
+    $("#n-time").value = (data && data.notify_time) || "07:00";
+  }
+  function closeNotify() { $("#n-overlay").hidden = true; document.body.style.overflow = ""; }
+
+  $("#notify-btn").addEventListener("click", openNotify);
+  $("#n-cancel").addEventListener("click", closeNotify);
+  $("#n-overlay").addEventListener("mousedown", (e) => { if (e.target === e.currentTarget) closeNotify(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#n-overlay").hidden) closeNotify(); });
+
+  $("#n-enable").addEventListener("click", async () => {
+    nErr("");
+    // iOS verlangt, dass die Abfrage direkt durch das Tippen ausgelöst wird.
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { renderDevice(perm === "denied" ? "denied" : "off"); return; }
+    $("#n-enable").disabled = true;
+    try {
+      const res = await fetch("api/push/key", { cache: "no-store" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.publicKey) throw new Error(body.error || "Der Server ist noch nicht eingerichtet.");
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (sub && !sameKey(sub, body.publicKey)) { await sub.unsubscribe(); sub = null; }
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(body.publicKey) });
+      const j = sub.toJSON();
+      const { error } = await sb.from("push_subscriptions").upsert(
+        { user_id: session.user.id, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) },
+        { onConflict: "endpoint" });
+      if (error) throw new Error("Gerät konnte nicht gespeichert werden: " + error.message);
+      renderDevice("on");
+      toast("Benachrichtigungen auf diesem Gerät erlaubt");
+    } catch (e) {
+      nErr(e.message || "Das hat nicht geklappt. Versuch es noch einmal.");
+      renderDevice(await deviceState());
+    }
+    $("#n-enable").disabled = false;
+  });
+
+  $("#n-test").addEventListener("click", async () => {
+    nErr("");
+    $("#n-test").disabled = true;
+    try {
+      const { data } = await sb.auth.getSession();
+      const res = await fetch("api/push/test", { method: "POST", headers: { authorization: "Bearer " + (data.session ? data.session.access_token : "") } });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Test fehlgeschlagen.");
+      toast("Testnachricht verschickt");
+    } catch (e) { nErr(e.message); }
+    $("#n-test").disabled = false;
+  });
+
+  $("#n-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    nErr("");
+    const time = /^\d{2}:\d{2}/.test($("#n-time").value) ? $("#n-time").value.slice(0, 5) : "07:00";
+    let tz = "Europe/Berlin";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch {}
+    $("#n-save").disabled = true;
+    const { error } = await sb.from("notification_settings").upsert({
+      user_id: session.user.id, digest_enabled: $("#n-digest").checked, start_enabled: $("#n-start").checked,
+      notify_time: time, timezone: tz, updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+    $("#n-save").disabled = false;
+    if (error) { nErr(navigator.onLine ? "Speichern fehlgeschlagen: " + error.message : "Du bist offline. Speichere, sobald du wieder Netz hast."); return; }
+    closeNotify();
+    const st = await deviceState();
+    toast(st === "on" ? "Benachrichtigungen gespeichert" : "Gespeichert – erlaube sie noch auf diesem Gerät");
+  });
+
   // ---------- Einrichtung & Anmeldung ----------
   function showGate(which) {
     $(".app").hidden = true; $("#gate").hidden = false;
@@ -1085,6 +1308,7 @@
     }
   }
   function showApp() {
+    document.documentElement.dataset.mode = mode || "";
     $("#gate").hidden = true; $(".app").hidden = false;
     $("#logout").hidden = mode !== "sync";
     $("#setup-sync").hidden = mode !== "local";

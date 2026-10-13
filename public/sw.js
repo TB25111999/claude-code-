@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei jeder Änderung an der App VERSION erhöhen, damit Geräte die neue Fassung laden.
-const VERSION = "todo-v2";
+const VERSION = "todo-v3";
 const SHELL = [
   "./",
   "./index.html",
@@ -46,4 +46,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   event.respondWith(caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
+});
+
+// ---------- Push-Benachrichtigungen ----------
+self.addEventListener("push", (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
+  const title = data.title || "Meine To-dos";
+  event.waitUntil(self.registration.showNotification(title, {
+    body: data.body || "",
+    tag: data.tag || undefined,
+    icon: "icons/icon-192.png",
+    badge: "icons/icon-192.png",
+    data: { url: data.url || "./" },
+  }));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || "./", self.registration.scope).href;
+  event.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const c of all) {
+      if (c.url.startsWith(self.registration.scope)) { await c.focus(); return; }
+    }
+    await self.clients.openWindow(target);
+  })());
 });

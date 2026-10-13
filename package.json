@@ -1,0 +1,10 @@
+{
+  "name": "meine-todos",
+  "private": true,
+  "type": "module",
+  "description": "To-do-App mit Sync und Push-Benachrichtigungen",
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "web-push": "3.6.7"
+  }
+}
