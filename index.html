@@ -3,14 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>[hidden]{display:none!important}body{margin:0}</style>
-</head>
-<body>
 <title>Meine To-dos</title>
+<meta name="description" content="Aufgaben mit Kategorien, Prioritäten und Zeiträumen – synchron auf iPhone und iPad.">
+<meta name="theme-color" content="#13201b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="To-dos">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
+  [hidden] { display: none !important; }
   /* Layout: dunkle Kommandoleiste links (Überblick + Kategorien), rechts Eingabe, Filter und nach Fälligkeit gruppierte Aufgaben. Mobil: alles in einer Spalte. */
   :root {
     --bg: #eef1ee; --surface: #ffffff; --surface-2: #f6f8f6; --fg: #17201c; --muted: #637069;
@@ -52,12 +60,12 @@
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-  .app { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  @media (min-width: 920px) { .app { grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; padding-block: 32px 72px; } }
+  .app { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  @media (min-width: 760px) { .app { grid-template-columns: 260px minmax(0, 1fr); align-items: start; gap: 28px; } }
 
   /* ---------- Seitenleiste ---------- */
   .side { background: var(--side-bg); color: var(--side-fg); border-radius: 20px; padding: 22px 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-self: start; box-shadow: var(--shadow); min-width: 0; }
-  @media (min-width: 920px) { .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); } }
+  @media (min-width: 760px) { .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); } }
   .brand { display: grid; gap: 2px; padding-inline: 4px; }
   .brand h1 { margin: 0; font: 800 1.85rem/1.05 var(--font-display); letter-spacing: -0.02em; }
   .brand .today { color: var(--side-muted); font-size: .9rem; }
@@ -70,7 +78,7 @@
   .stat.today b { color: #f4c25c; }
   .side h2 { margin: 0 0 6px; padding-inline: 6px; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--side-muted); }
   .cats { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-  @media (max-width: 919px) {
+  @media (max-width: 759px) {
     .cats { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
     .cats li { flex: none; }
     .cat-btn { border: 1px solid var(--side-line); }
@@ -85,7 +93,7 @@
   .cat-del { position: absolute; right: 34px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--side-muted); padding: 2px 6px; border-radius: 6px; opacity: 0; }
   .cat-row:hover .cat-del, .cat-del:focus-visible { opacity: 1; }
   .cat-del:hover { color: #ff8a73; }
-  @media (max-width: 919px) { .cat-del { display: none; } }
+  @media (max-width: 759px) { .cat-del { display: none; } }
   .newcat { display: flex; gap: 6px; margin-top: 8px; }
   .newcat input { flex: 1; min-width: 0; width: 100%; background: var(--side-hover); border: 1px solid var(--side-line); border-radius: 10px; padding: 8px 10px; color: var(--side-fg); }
   .newcat input::placeholder { color: var(--side-muted); }
@@ -102,7 +110,8 @@
   #c-title { flex: 1; min-width: 0; border: 0; background: transparent; font: 600 1.2rem/1.3 var(--font-body); padding: 6px 2px; }
   #c-title::placeholder { color: var(--muted); font-weight: 500; }
   #c-title:focus-visible { outline: none; }
-  .fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .fields { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (min-width: 1180px) { .fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr); } }
   .field { display: grid; gap: 5px; min-width: 0; }
   @media (max-width: 600px) {
     .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -195,9 +204,99 @@
   .toast button { border: 0; background: transparent; color: var(--accent-soft); font-weight: 700; padding: 4px 6px; }
   .status { font-size: .82rem; color: var(--muted); }
   .status[data-kind="error"] { color: var(--danger); }
-</style>
 
-<div class="app">
+  /* ---------- App auf iPhone / iPad ---------- */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100vh; min-height: 100dvh; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+  /* iOS zoomt bei Eingabefeldern unter 16px hinein */
+  input, select, textarea { font-size: 16px; }
+  .app { padding-top: calc(env(safe-area-inset-top, 0px) + 20px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 56px);
+         padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .check { width: 28px; height: 28px; }
+  .check svg { width: 16px; height: 16px; }
+  .chip { padding: 6px 12px; }
+  @media (hover: none) { .cat-del { opacity: 1; } }
+
+  .sync { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--side-line); border-radius: 12px; background: var(--side-hover); }
+  .sync-line { display: flex; align-items: center; gap: 8px; font-size: .84rem; color: var(--side-fg); min-width: 0; }
+  .sync-line .light { width: 8px; height: 8px; border-radius: 50%; background: var(--side-muted); flex: none; }
+  .sync-line[data-state="ok"] .light { background: #4cc497; }
+  .sync-line[data-state="busy"] .light { background: #f4c25c; }
+  .sync-line[data-state="offline"] .light { background: #f4c25c; }
+  .sync-line[data-state="error"] .light { background: #ff8a73; }
+  .sync-line span:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .sync .who { font-size: .78rem; color: var(--side-muted); overflow-wrap: anywhere; }
+  .sync .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .side-btn { border: 1px solid var(--side-line); background: transparent; color: var(--side-fg); border-radius: 9px; padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+  .side-btn:hover { background: var(--side-bg); }
+
+  /* ---------- Einrichtung & Anmeldung ---------- */
+  .gate { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; background: var(--side-bg); color: var(--side-fg);
+          padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+  .gate-card { width: min(420px, 100%); display: grid; gap: 18px; }
+  .gate-logo { width: 64px; height: 64px; border-radius: 16px; }
+  .gate h1 { margin: 0; font: 800 2rem/1.1 var(--font-display); letter-spacing: -0.02em; }
+  .gate p { margin: 0; color: var(--side-muted); line-height: 1.5; }
+  .gate form { display: grid; gap: 12px; }
+  .gate label { display: grid; gap: 6px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--side-muted); }
+  .gate input { width: 100%; min-width: 0; height: 46px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--side-line); background: var(--side-hover); color: var(--side-fg); font-weight: 500; letter-spacing: 0; text-transform: none; }
+  .gate input:focus-visible { outline: 2px solid #4cc497; outline-offset: 1px; }
+  .gate .btn { height: 48px; background: #4cc497; color: #08160f; font-size: 1rem; }
+  .gate .btn.ghost { background: transparent; color: var(--side-fg); border: 1px solid var(--side-line); }
+  .gate .msg { font-size: .9rem; color: var(--side-fg); background: var(--side-hover); border: 1px solid var(--side-line); border-radius: 12px; padding: 10px 12px; }
+  .gate .msg[data-kind="error"] { color: #ff9c88; border-color: #5a2a22; }
+  .gate .alt { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+  .gate .link-btn { color: var(--side-muted); text-decoration-color: var(--side-line); }
+  .gate .link-btn:hover { color: var(--side-fg); }
+  .gate small { color: var(--side-muted); font-size: .8rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="gate" id="gate" hidden>
+  <div class="gate-card">
+    <img class="gate-logo" src="icons/icon-192.png" alt="" width="64" height="64">
+
+    <section id="gate-setup" hidden>
+      <div class="gate-card">
+        <div>
+          <h1>Sync einrichten</h1>
+          <p>Trag die Daten deines Supabase-Projekts ein. Du findest sie im Supabase-Dashboard unter Project Settings → API.</p>
+        </div>
+        <form id="setup-form" novalidate>
+          <label>Project URL<input id="setup-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://abcd1234.supabase.co"></label>
+          <label>anon public Key<input id="setup-key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="eyJhbGciOi…"></label>
+          <div class="msg" id="setup-msg" hidden></div>
+          <button class="btn" type="submit">Verbinden</button>
+        </form>
+        <div class="alt">
+          <button type="button" class="link-btn" id="use-local">Ohne Sync nur auf diesem Gerät nutzen</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gate-login" hidden>
+      <div class="gate-card">
+        <div>
+          <h1>Meine To-dos</h1>
+          <p>Melde dich an, damit deine Aufgaben auf iPhone und iPad gleich sind.</p>
+        </div>
+        <form id="login-form" novalidate>
+          <label>E-Mail<input id="login-email" type="email" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="email"></label>
+          <label>Passwort<input id="login-pass" type="password" autocomplete="current-password" minlength="6"></label>
+          <div class="msg" id="login-msg" hidden></div>
+          <button class="btn" type="submit" id="login-submit">Anmelden</button>
+          <button class="btn ghost" type="button" id="signup">Neues Konto erstellen</button>
+        </form>
+        <small>Auf dem zweiten Gerät meldest du dich mit derselben E-Mail und demselben Passwort an.</small>
+        <div class="alt">
+          <button type="button" class="link-btn" id="change-conn">Verbindung ändern</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="app" hidden>
   <aside class="side" aria-label="Überblick">
     <div class="brand">
       <h1>Meine To-dos</h1>
@@ -220,14 +319,25 @@
       </form>
     </nav>
 
-    <div class="foot" id="status-side"></div>
+    <div class="sync">
+      <div class="sync-line" id="sync-line" data-state="busy"><span class="light"></span><span id="sync-text">Starte …</span></div>
+      <div class="who" id="who" hidden></div>
+      <div class="row">
+        <button type="button" class="side-btn" id="sync-now">Jetzt abgleichen</button>
+        <button type="button" class="side-btn" id="export">Export</button>
+        <button type="button" class="side-btn" id="import-btn">Import</button>
+        <button type="button" class="side-btn" id="setup-sync" hidden>Sync einrichten</button>
+        <button type="button" class="side-btn" id="logout" hidden>Abmelden</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+    </div>
   </aside>
 
   <main class="main">
     <form class="composer" id="composer" novalidate>
       <div class="title-row">
         <span class="plus" aria-hidden="true">+</span>
-        <input id="c-title" type="text" placeholder="Neue Aufgabe, z. B. „DAX-Setup für Montag vorbereiten“" maxlength="200" autocomplete="off" aria-label="Titel der Aufgabe">
+        <input id="c-title" type="text" placeholder="Neue Aufgabe …" maxlength="200" autocomplete="off" aria-label="Titel der Aufgabe">
       </div>
       <div class="fields">
         <div class="field">
@@ -346,11 +456,16 @@
 
 <div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" id="toast-undo">Rückgängig</button></div>
 
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
-  const LOCAL_KEY = "todos-v2";
+
+  const CFG_KEY = "todo-app-config";
+  const MODE_KEY = "todo-app-mode";
+  const CACHE_KEY = "todo-app-cache-v1";
 
   const BASE_CATS = [
     { id: "trading", name: "Trading", k: 1 },
@@ -372,90 +487,235 @@
     todos: [], customCats: [], loaded: false,
     cat: "all", status: "open", prio: "all", sort: "due", q: "",
   };
-  let store = null, metaRef = null, readOnly = false, editing = null;
+  let editing = null;
 
-  // ---------- Datum ----------
+  // ---------- Hilfen ----------
   const today = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
   const parseDay = (s) => { if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const days = (a, b) => Math.round((a - b) / 864e5);
   const fmtShort = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
   const fmtLong = new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const fmtTime = new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit" });
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const truncate = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  function uuid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+    const h = [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
 
-  // ---------- Kategorien ----------
   const allCats = () => [...BASE_CATS, ...state.customCats];
   const catOf = (id) => allCats().find((c) => c.id === id) || { id, name: "Sonstiges", k: 10 };
   const kVar = (c) => `var(--k${c.k})`;
 
-  // ---------- Speichern ----------
-  const local = {
-    load() { try { const v = JSON.parse(localStorage.getItem(LOCAL_KEY)); return v && typeof v === "object" ? v : null; } catch { return null; } },
-    save() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ todos: state.todos, customCats: state.customCats })); } catch {} },
-  };
-
-  function setStatus(text, kind) {
-    const el = $("#status-side");
-    el.textContent = text || "";
-    el.className = "foot status";
-    if (kind) el.dataset.kind = kind; else delete el.dataset.kind;
-  }
-
-  async function write(fn) {
-    try { await fn(); return true; }
-    catch (e) {
-      if (e && e.code === "invalid_argument") { readOnly = true; applyReadOnly(); setStatus("Nur Lesezugriff – Änderungen werden nicht gespeichert.", "error"); }
-      else if (e && e.code === "quota_exceeded") setStatus("Speicher voll. Lösche erledigte Aufgaben, um Platz zu schaffen.", "error");
-      else setStatus("Konnte nicht speichern. Versuch es gleich noch einmal.", "error");
-      return false;
-    }
-  }
-
-  const localId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-
-  const api = {
-    add(t) {
-      if (store) return write(() => store.add(t));
-      state.todos.push({ id: localId(), ...t }); local.save(); render();
-    },
-    patch(t, fields) {
-      if (store) return write(() => store.doc(t.id).update(fields));
-      Object.assign(t, fields); local.save(); render();
-    },
-    remove(t) {
-      const { id, ...data } = t;
-      const done = () => toast(`„${truncate(t.text, 32)}“ gelöscht`, () => api.restore(id, data));
-      if (store) return write(() => store.doc(id).delete()).then((ok) => ok && done());
-      state.todos = state.todos.filter((x) => x.id !== id); local.save(); render(); done();
-    },
-    restore(id, data) {
-      if (store) return write(() => store.doc(id).set(data));
-      state.todos.push({ id, ...data }); local.save(); render();
-    },
-    saveCats() {
-      if (store) return write(() => metaRef.set({ customCats: state.customCats }));
-      local.save(); renderCats(); fillCatSelects();
-    },
-  };
-
-  const truncate = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
-
-  // ---------- Normalisieren ----------
   function norm(raw, id) {
     return {
-      id,
-      text: String(raw.text || "").slice(0, 200) || "Ohne Titel",
+      id: UUID_RE.test(id || "") ? id : uuid(),
+      text: String(raw.text || "").trim().slice(0, 200) || "Ohne Titel",
       done: !!raw.done,
-      created: Number(raw.created) || 0,
+      created: Number(raw.created) || Date.now(),
       doneAt: Number(raw.doneAt) || 0,
-      category: typeof raw.category === "string" ? raw.category : "privat",
+      category: typeof raw.category === "string" && raw.category ? raw.category.slice(0, 40) : "privat",
       priority: PRIOS[raw.priority] ? raw.priority : "mittel",
       start: parseDay(raw.start) ? raw.start : "",
       end: parseDay(raw.end) ? raw.end : "",
-      note: typeof raw.note === "string" ? raw.note : "",
+      note: typeof raw.note === "string" ? raw.note.slice(0, 2000) : "",
     };
   }
+  const cleanCats = (list) => (Array.isArray(list) ? list : [])
+    .filter((c) => c && typeof c.id === "string" && typeof c.name === "string" && c.name.trim())
+    .map((c) => ({ id: c.id.slice(0, 40), name: c.name.trim().slice(0, 24), k: Math.min(10, Math.max(1, Number(c.k) || 9)) }));
 
+  // ---------- Lokaler Speicher (auch offline) ----------
+  let cache = { userId: null, outbox: [], lastSync: 0 };
+  function loadCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+      if (c && typeof c === "object") {
+        cache = { userId: c.userId || null, outbox: Array.isArray(c.outbox) ? c.outbox : [], lastSync: Number(c.lastSync) || 0 };
+        state.todos = (Array.isArray(c.todos) ? c.todos : []).map((t) => norm(t, t.id));
+        state.customCats = cleanCats(c.customCats);
+      }
+    } catch {}
+  }
+  function persist() {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ...cache, todos: state.todos, customCats: state.customCats }));
+    } catch {
+      setSync("error", "Gerätespeicher voll – Änderungen gehen beim Schließen verloren.");
+    }
+  }
+  function resetCache(userId) {
+    cache = { userId, outbox: [], lastSync: 0 };
+    state.todos = []; state.customCats = [];
+    persist();
+  }
+
+  // ---------- Supabase ----------
+  let sb = null, session = null, channel = null, mode = null; // mode: "sync" | "local"
+  let flushing = false, pulling = false, pullAgain = false, pullTimer = null;
+
+  function getConfig() {
+    const c = window.TODO_CONFIG || {};
+    if (c.supabaseUrl && c.supabaseAnonKey) return { url: c.supabaseUrl.trim(), key: c.supabaseAnonKey.trim(), fromFile: true };
+    try { const s = JSON.parse(localStorage.getItem(CFG_KEY)); if (s && s.url && s.key) return { ...s, fromFile: false }; } catch {}
+    return null;
+  }
+
+  const toRow = (t) => ({
+    id: t.id, user_id: session ? session.user.id : cache.userId,
+    text: t.text, done: t.done, done_at: t.doneAt ? new Date(t.doneAt).toISOString() : null,
+    category: t.category, priority: t.priority, start_date: t.start || null, end_date: t.end || null,
+    note: t.note, created_at: new Date(t.created).toISOString(), updated_at: new Date().toISOString(),
+  });
+  const fromRow = (r) => norm({
+    text: r.text, done: r.done, doneAt: r.done_at ? Date.parse(r.done_at) : 0,
+    category: r.category, priority: r.priority, start: r.start_date || "", end: r.end_date || "",
+    note: r.note || "", created: Date.parse(r.created_at) || Date.now(),
+  }, r.id);
+
+  function queue(op) {
+    if (mode !== "sync") return;
+    cache.outbox = cache.outbox.filter((o) => (op.type === "settings" ? o.type !== "settings" : o.id !== op.id));
+    cache.outbox.push(op);
+  }
+
+  const isNetworkError = (e) => !e || !e.code || /fetch|network|load failed|timeout/i.test(e.message || "");
+
+  async function flush() {
+    if (mode !== "sync" || !sb || !session || flushing) return;
+    if (!navigator.onLine) { updateSyncLine(); return; }
+    flushing = true; updateSyncLine();
+    try {
+      while (cache.outbox.length) {
+        const op = cache.outbox[0];
+        let res;
+        if (op.type === "upsert") {
+          const t = state.todos.find((x) => x.id === op.id);
+          if (!t) { cache.outbox.shift(); continue; }
+          res = await sb.from("todos").upsert(toRow(t));
+        } else if (op.type === "delete") {
+          res = await sb.from("todos").delete().eq("id", op.id);
+        } else {
+          res = await sb.from("user_settings").upsert({ user_id: session.user.id, custom_cats: state.customCats, updated_at: new Date().toISOString() });
+        }
+        if (res.error) {
+          if (isNetworkError(res.error)) break;
+          if (res.error.code === "PGRST301" || /jwt/i.test(res.error.message || "")) { await sb.auth.refreshSession().catch(() => {}); break; }
+          // Vom Server abgelehnt (z. B. ungültige Daten): Eintrag verwerfen, damit der Rest durchgeht.
+          console.warn("Abgelehnt:", op, res.error);
+          cache.outbox.shift(); persist();
+          setSync("error", "Eine Änderung wurde vom Server abgelehnt.");
+          continue;
+        }
+        cache.outbox.shift(); persist();
+      }
+    } catch (e) { console.warn(e); }
+    flushing = false;
+    updateSyncLine();
+  }
+
+  async function pull() {
+    if (mode !== "sync" || !sb || !session) return;
+    if (pulling) { pullAgain = true; return; }
+    if (!navigator.onLine) { updateSyncLine(); return; }
+    pulling = true; updateSyncLine();
+    try {
+      await flush();
+      const [todosRes, setRes] = await Promise.all([
+        sb.from("todos").select("*").order("created_at", { ascending: true }).limit(5000),
+        sb.from("user_settings").select("custom_cats").maybeSingle(),
+      ]);
+      if (todosRes.error) throw todosRes.error;
+      const pendingUp = new Set(cache.outbox.filter((o) => o.type === "upsert").map((o) => o.id));
+      const pendingDel = new Set(cache.outbox.filter((o) => o.type === "delete").map((o) => o.id));
+      const server = todosRes.data.map(fromRow).filter((t) => !pendingUp.has(t.id) && !pendingDel.has(t.id));
+      const localPending = state.todos.filter((t) => pendingUp.has(t.id));
+      state.todos = [...server, ...localPending];
+      if (!setRes.error && !cache.outbox.some((o) => o.type === "settings")) state.customCats = cleanCats(setRes.data?.custom_cats);
+      cache.lastSync = Date.now();
+      state.loaded = true;
+      persist(); fillCatSelects(); renderAll();
+    } catch (e) {
+      console.warn(e);
+      if (!isNetworkError(e)) setSync("error", "Abgleich fehlgeschlagen. Versuch es gleich noch einmal.");
+    }
+    pulling = false;
+    updateSyncLine();
+    if (pullAgain) { pullAgain = false; pull(); }
+  }
+  const schedulePull = () => { clearTimeout(pullTimer); pullTimer = setTimeout(pull, 400); };
+
+  function subscribeLive() {
+    if (channel) sb.removeChannel(channel);
+    const uid = session.user.id;
+    channel = sb.channel("todos-" + uid)
+      .on("postgres_changes", { event: "*", schema: "public", table: "todos", filter: `user_id=eq.${uid}` }, schedulePull)
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_settings", filter: `user_id=eq.${uid}` }, schedulePull)
+      .subscribe();
+  }
+
+  // ---------- Sync-Anzeige ----------
+  let syncOverride = null;
+  function setSync(kind, text) {
+    syncOverride = { kind, text, until: Date.now() + 8000 };
+    updateSyncLine();
+  }
+  function updateSyncLine() {
+    const line = $("#sync-line"), txt = $("#sync-text");
+    if (!line) return;
+    let kind, text;
+    const pending = cache.outbox.length;
+    if (syncOverride && syncOverride.until > Date.now()) ({ kind, text } = syncOverride);
+    else if (mode === "local") { kind = "idle"; text = "Nur auf diesem Gerät gespeichert."; }
+    else if (!navigator.onLine) { kind = "offline"; text = pending ? `Offline – ${plural(pending, "Änderung wartet", "Änderungen warten")}.` : "Offline – alles gespeichert."; }
+    else if (!session) { kind = "offline"; text = "Nicht angemeldet."; }
+    else if (flushing || pulling) { kind = "busy"; text = "Gleiche ab …"; }
+    else if (pending) { kind = "busy"; text = `${plural(pending, "Änderung wartet", "Änderungen warten")} auf Übertragung.`; }
+    else { kind = "ok"; text = cache.lastSync ? `Abgeglichen um ${fmtTime.format(new Date(cache.lastSync))}` : "Verbunden."; }
+    line.dataset.state = kind; txt.textContent = text;
+  }
+
+  // ---------- Änderungen ----------
+  function after() { persist(); renderAll(); flush(); }
+  const api = {
+    add(t) {
+      const todo = norm(t, uuid());
+      state.todos.push(todo);
+      queue({ type: "upsert", id: todo.id });
+      after();
+    },
+    patch(t, fields) {
+      const cur = state.todos.find((x) => x.id === t.id);
+      if (!cur) return;
+      Object.assign(cur, fields);
+      queue({ type: "upsert", id: cur.id });
+      after();
+    },
+    remove(t) {
+      const snapshot = { ...t };
+      state.todos = state.todos.filter((x) => x.id !== t.id);
+      queue({ type: "delete", id: t.id });
+      after();
+      toast(`„${truncate(t.text, 32)}“ gelöscht`, () => api.restore(snapshot));
+    },
+    restore(t) {
+      if (state.todos.some((x) => x.id === t.id)) return;
+      state.todos.push(t);
+      queue({ type: "upsert", id: t.id });
+      after();
+    },
+    saveCats() {
+      queue({ type: "settings" });
+      persist(); renderCats(); fillCatSelects(); flush();
+    },
+  };
+
+  // ---------- Darstellung ----------
   function bucket(t, now) {
     if (t.done) return "done";
     const e = parseDay(t.end), s = parseDay(t.start);
@@ -488,7 +748,6 @@
     return null;
   }
 
-  // ---------- Rendern ----------
   function visible() {
     const q = state.q.trim().toLowerCase();
     return state.todos.filter((t) =>
@@ -534,7 +793,7 @@
       b.append(dot, name, n);
       b.addEventListener("click", () => { state.cat = c.id; if (c.id !== "all") $("#c-cat").value = c.id; renderAll(); });
       li.append(b);
-      if (state.customCats.some((x) => x.id === c.id) && !readOnly) {
+      if (state.customCats.some((x) => x.id === c.id)) {
         const del = document.createElement("button");
         del.type = "button"; del.className = "cat-del"; del.textContent = "×";
         del.setAttribute("aria-label", `Kategorie ${c.name} entfernen`);
@@ -571,13 +830,11 @@
     cb.setAttribute("aria-checked", String(t.done));
     cb.setAttribute("aria-label", `Erledigt: ${t.text}`);
     cb.innerHTML = checkSvg;
-    cb.disabled = readOnly;
     cb.addEventListener("click", () => api.patch(t, t.done ? { done: false, doneAt: 0 } : { done: true, doneAt: Date.now() }));
 
     const body = document.createElement("button");
     body.type = "button"; body.className = "t-body";
     body.setAttribute("aria-label", `${t.text} bearbeiten`);
-    body.disabled = readOnly;
     const title = document.createElement("div"); title.className = "t-title"; title.textContent = t.text;
     body.append(title);
 
@@ -614,7 +871,6 @@
 
     const more = document.createElement("button");
     more.type = "button"; more.className = "t-edit"; more.textContent = "Bearbeiten";
-    more.hidden = readOnly;
     more.addEventListener("click", () => openEdit(t));
 
     li.append(cb, body, more);
@@ -652,9 +908,8 @@
   function renderAll() {
     const now = today();
     $("#view-title").textContent = state.cat === "all" ? "Alle Kategorien" : catOf(state.cat).name;
-    renderStats(now); renderCats(); renderList(now);
+    renderStats(now); renderCats(); renderList(now); updateSyncLine();
   }
-  const render = renderAll;
 
   // ---------- Formulare ----------
   function readForm(p) {
@@ -673,16 +928,14 @@
 
   $("#composer").addEventListener("submit", (e) => {
     e.preventDefault();
-    if (readOnly || !state.loaded) return;
     const data = readForm("c");
     if (!data) return;
     api.add({ ...data, done: false, doneAt: 0, created: Date.now() });
     $("#c-title").value = ""; $("#c-note").value = ""; $("#c-start").value = ""; $("#c-end").value = "";
     $("#c-note-wrap").hidden = true; $("#c-note-toggle").hidden = false;
     if (state.status === "done") setStatusTab("open");
-    $("#c-title").focus();
+    $("#c-title").blur();
   });
-
   $("#c-title").addEventListener("input", () => { $("#c-err").hidden = true; });
 
   $$(".chip[data-due]").forEach((b) => b.addEventListener("click", () => {
@@ -699,10 +952,8 @@
     $("#c-note-wrap").hidden = false; $("#c-note-toggle").hidden = true; $("#c-note").focus();
   });
 
-  // Bearbeiten
   let lastFocus = null;
   function openEdit(t) {
-    if (readOnly) return;
     editing = t; lastFocus = document.activeElement;
     $("#e-title").value = t.text;
     fillCatSelects();
@@ -712,11 +963,12 @@
     $("#e-start").value = t.start; $("#e-end").value = t.end; $("#e-note").value = t.note;
     $("#e-err").hidden = true; $("#e-end").setAttribute("aria-invalid", "false");
     $("#overlay").hidden = false;
-    $("#e-title").focus();
+    document.body.style.overflow = "hidden";
   }
   function closeEdit() {
     $("#overlay").hidden = true; editing = null;
-    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    document.body.style.overflow = "";
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
   }
   $("#edit").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -741,7 +993,6 @@
     }
   });
 
-  // Filter
   function setStatusTab(v) {
     state.status = v;
     $$(".tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.status === v)));
@@ -755,90 +1006,263 @@
     state.cat = "all"; state.prio = "all"; $("#f-prio").value = "all"; state.sort = "due"; $("#f-sort").value = "due";
     setStatusTab(j === "done" ? "done" : "open");
     renderAll();
-    if (j === "today" || j === "overdue") document.querySelector(".group." + j)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const target = document.querySelector(".group." + j) || $("#list");
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
   }));
 
-  // Neue Kategorie
   $("#newcat").addEventListener("submit", (e) => {
     e.preventDefault();
-    if (readOnly) return;
     const name = $("#newcat-name").value.trim().slice(0, 24);
     if (!name) return;
     const existing = allCats().find((c) => c.name.toLowerCase() === name.toLowerCase());
     if (existing) { state.cat = existing.id; $("#newcat-name").value = ""; renderAll(); return; }
     const used = new Set(allCats().map((c) => c.k));
     const k = [9, 10, 1, 2, 3, 4, 5, 6, 7, 8].find((n) => !used.has(n)) || ((state.customCats.length % 10) + 1);
-    const id = "c-" + localId();
+    const id = "c-" + uuid().slice(0, 8);
     state.customCats = [...state.customCats, { id, name, k }];
     state.cat = id;
     $("#newcat-name").value = "";
+    $("#newcat-name").blur();
     api.saveCats(); fillCatSelects(); $("#c-cat").value = id; renderAll();
   });
 
-  // Toast
   let toastTimer = null, undoFn = null;
   function toast(text, undo) {
     $("#toast-text").textContent = text;
-    undoFn = undo; $("#toast-undo").hidden = !undo;
+    undoFn = undo || null; $("#toast-undo").hidden = !undo;
     $("#toast").hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { $("#toast").hidden = true; undoFn = null; }, 6000);
   }
   $("#toast-undo").addEventListener("click", () => { if (undoFn) undoFn(); undoFn = null; $("#toast").hidden = true; });
 
-  function applyReadOnly() {
-    $$("#composer input, #composer select, #composer textarea, #composer button, #newcat input, #newcat button")
-      .forEach((el) => { el.disabled = readOnly; });
-    renderAll();
+  // ---------- Export / Import ----------
+  $("#export").addEventListener("click", async () => {
+    const data = JSON.stringify({ app: "meine-todos", version: 1, exported: new Date().toISOString(), todos: state.todos, customCats: state.customCats }, null, 2);
+    const name = `todos-${iso(today())}.json`;
+    const file = new File([data], name, { type: "application/json" });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "To-do-Export" }); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(file); a.download = name;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+  $("#import-btn").addEventListener("click", () => $("#import-file").click());
+  $("#import-file").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      const list = Array.isArray(data) ? data : data.todos;
+      if (!Array.isArray(list)) throw new Error("format");
+      const known = new Set(state.todos.map((t) => t.id));
+      let added = 0;
+      for (const raw of list) {
+        const t = norm(raw, raw.id);
+        if (known.has(t.id)) continue;
+        state.todos.push(t); queue({ type: "upsert", id: t.id }); added++;
+      }
+      const cats = cleanCats(data.customCats).filter((c) => !allCats().some((x) => x.id === c.id));
+      if (cats.length) { state.customCats = [...state.customCats, ...cats]; queue({ type: "settings" }); }
+      fillCatSelects(); after();
+      toast(`${plural(added, "Aufgabe", "Aufgaben")} importiert`);
+    } catch {
+      toast("Diese Datei konnte nicht gelesen werden. Wähle einen Export dieser App.");
+    }
+  });
+
+  // ---------- Einrichtung & Anmeldung ----------
+  function showGate(which) {
+    $(".app").hidden = true; $("#gate").hidden = false;
+    $("#gate-setup").hidden = which !== "setup";
+    $("#gate-login").hidden = which !== "login";
+    if (which === "setup") {
+      const c = getConfig();
+      if (c) { $("#setup-url").value = c.url; $("#setup-key").value = c.key; }
+    }
+  }
+  function showApp() {
+    $("#gate").hidden = true; $(".app").hidden = false;
+    $("#logout").hidden = mode !== "sync";
+    $("#setup-sync").hidden = mode !== "local";
+    $("#sync-now").hidden = mode !== "sync";
+    const who = $("#who");
+    who.hidden = !(mode === "sync" && session);
+    if (session) who.textContent = "Angemeldet als " + session.user.email;
+    fillCatSelects(); renderAll();
+  }
+  function gateMsg(id, text, kind) {
+    const el = $(id); el.textContent = text || ""; el.hidden = !text;
+    if (kind) el.dataset.kind = kind; else delete el.dataset.kind;
   }
 
+  $("#setup-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const url = $("#setup-url").value.trim().replace(/\/+$/, "");
+    const key = $("#setup-key").value.trim();
+    if (!/^https:\/\/[^\s/]+$/.test(url)) return gateMsg("#setup-msg", "Die URL muss so aussehen: https://abcd1234.supabase.co", "error");
+    if (key.length < 30) return gateMsg("#setup-msg", "Der Schlüssel ist zu kurz. Kopiere den kompletten „anon public“ Key.", "error");
+    try { localStorage.setItem(CFG_KEY, JSON.stringify({ url, key })); localStorage.removeItem(MODE_KEY); } catch {}
+    location.reload();
+  });
+  $("#use-local").addEventListener("click", () => {
+    try { localStorage.setItem(MODE_KEY, "local"); } catch {}
+    startLocal();
+  });
+  $("#setup-sync").addEventListener("click", () => {
+    try { localStorage.removeItem(MODE_KEY); } catch {}
+    showGate("setup");
+  });
+  $("#change-conn").addEventListener("click", () => showGate("setup"));
+
+  const AUTH_ERRORS = [
+    [/invalid login credentials/i, "E-Mail oder Passwort stimmt nicht."],
+    [/email not confirmed/i, "Bestätige zuerst deine E-Mail über den Link in deinem Postfach, dann melde dich hier an."],
+    [/already registered|already been registered/i, "Für diese E-Mail gibt es schon ein Konto. Melde dich damit an."],
+    [/password should be at least|weak password/i, "Das Passwort muss mindestens 6 Zeichen lang sein."],
+    [/rate limit|too many/i, "Zu viele Versuche. Warte einen Moment und versuch es dann erneut."],
+    [/invalid email|unable to validate email/i, "Diese E-Mail-Adresse ist ungültig."],
+    [/fetch|network|load failed/i, "Keine Verbindung zum Server. Prüfe dein Internet."],
+  ];
+  const authText = (err) => (AUTH_ERRORS.find(([re]) => re.test(err?.message || "")) || [null, "Anmeldung fehlgeschlagen: " + (err?.message || "unbekannter Fehler")])[1];
+
+  function credentials() {
+    const email = $("#login-email").value.trim(), password = $("#login-pass").value;
+    if (!/^\S+@\S+\.\S+$/.test(email)) { gateMsg("#login-msg", "Gib deine E-Mail-Adresse ein.", "error"); return null; }
+    if (password.length < 6) { gateMsg("#login-msg", "Das Passwort muss mindestens 6 Zeichen lang sein.", "error"); return null; }
+    return { email, password };
+  }
+  function busy(on) { $$("#login-form button").forEach((b) => { b.disabled = on; }); }
+
+  $("#login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const c = credentials(); if (!c) return;
+    busy(true); gateMsg("#login-msg", "");
+    const { data, error } = await sb.auth.signInWithPassword(c);
+    busy(false);
+    if (error) return gateMsg("#login-msg", authText(error), "error");
+    enterSync(data.session);
+  });
+  $("#signup").addEventListener("click", async () => {
+    const c = credentials(); if (!c) return;
+    busy(true); gateMsg("#login-msg", "");
+    const { data, error } = await sb.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } });
+    busy(false);
+    if (error) return gateMsg("#login-msg", authText(error), "error");
+    if (data.session) return enterSync(data.session);
+    gateMsg("#login-msg", "Fast geschafft: Wir haben dir eine E-Mail geschickt. Tippe auf den Link darin und melde dich danach hier an.");
+  });
+  $("#logout").addEventListener("click", async () => {
+    if (cache.outbox.length && !confirmInline()) return;
+    if (channel) { sb.removeChannel(channel); channel = null; }
+    await sb.auth.signOut().catch(() => {});
+    session = null;
+    resetCache(null);
+    renderAll();
+    showGate("login");
+  });
+  // Ungesendete Änderungen: erst nach zweitem Tippen abmelden.
+  let logoutArmed = 0;
+  function confirmInline() {
+    if (Date.now() - logoutArmed < 5000) return true;
+    logoutArmed = Date.now();
+    setSync("error", `${plural(cache.outbox.length, "Änderung ist", "Änderungen sind")} noch nicht übertragen. Tippe erneut auf „Abmelden“, um sie zu verwerfen.`);
+    return false;
+  }
+  $("#sync-now").addEventListener("click", () => { syncOverride = null; pull(); });
+
   // ---------- Start ----------
-  function startLocal(note) {
-    store = null; metaRef = null;
-    const saved = local.load() || {};
-    state.todos = (saved.todos || []).map((t) => norm(t, t.id || localId()));
-    state.customCats = Array.isArray(saved.customCats) ? saved.customCats : [];
+  function enterSync(s) {
+    session = s;
+    if (cache.userId === null) {
+      // Erste Anmeldung auf diesem Gerät: bisher lokal gespeicherte Aufgaben mitnehmen.
+      cache.userId = s.user.id;
+      state.todos.forEach((t) => queue({ type: "upsert", id: t.id }));
+      if (state.customCats.length) queue({ type: "settings" });
+      persist();
+    } else if (cache.userId !== s.user.id) resetCache(s.user.id);
     state.loaded = true;
-    if (note) setStatus(note);
-    fillCatSelects(); renderAll();
+    showApp();
+    subscribeLive();
+    pull();
+  }
+
+  function startLocal() {
+    mode = "local";
+    state.loaded = true;
+    showApp();
   }
 
   async function start() {
     $("#today").textContent = fmtLong.format(new Date());
-    fillCatSelects(); renderAll();
-    const db = window.claude?.use ? await window.claude.use("db").catch(() => null) : null;
-    if (!db) { startLocal("Gespeichert nur in diesem Browser."); return; }
-    store = db.collection("todos");
-    metaRef = db.doc("meta/settings");
+    loadCache();
 
-    const user = await window.claude.use("user").catch(() => null);
-    let canWrite = null;
-    try { canWrite = user ? await user.can("data.write") : null; } catch {}
-    if (canWrite === false) { readOnly = true; applyReadOnly(); setStatus("Nur Lesezugriff."); }
-    else setStatus("Synchronisiert über alle deine Geräte.");
+    const cfg = getConfig();
+    let localMode = false;
+    try { localMode = localStorage.getItem(MODE_KEY) === "local"; } catch {}
+    if (localMode) return startLocal();
+    if (!cfg) return showGate("setup");
+    if (!window.supabase) {
+      // Bibliothek fehlt (sollte durch den Offline-Cache nicht passieren): mit Cache weiterarbeiten.
+      mode = "sync"; state.loaded = true; showApp();
+      setSync("error", "Sync-Bibliothek konnte nicht geladen werden. Lade die App neu.");
+      return;
+    }
 
-    metaRef.onSnapshot((snap) => {
-      const d = snap.exists ? snap.data() : null;
-      state.customCats = d && Array.isArray(d.customCats)
-        ? d.customCats.filter((c) => c && typeof c.id === "string" && typeof c.name === "string").map((c) => ({ id: c.id, name: c.name.slice(0, 24), k: Math.min(10, Math.max(1, Number(c.k) || 9)) }))
-        : [];
-      fillCatSelects(); renderAll();
-    }, () => {});
+    mode = "sync";
+    sb = window.supabase.createClient(cfg.url, cfg.key, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "todo-app-auth" },
+    });
+    $("#change-conn").hidden = !!cfg.fromFile;
 
-    store.onSnapshot((snap) => {
-      state.todos = snap.docs.map((d) => norm(d.data() || {}, d.id));
-      state.loaded = true;
-      renderAll();
-    }, () => startLocal("Verbindung verloren – Änderungen gelten nur in diesem Browser."));
+    sb.auth.onAuthStateChange((event, s) => {
+      if (event === "TOKEN_REFRESHED" && s) session = s;
+      if (event === "SIGNED_OUT" && session) { session = null; showGate("login"); }
+    });
+
+    let s = null;
+    try { ({ data: { session: s } } = await sb.auth.getSession()); } catch {}
+    if (s) return enterSync(s);
+    if (cache.userId && !navigator.onLine) {
+      // Offline gestartet: mit den gespeicherten Daten arbeiten, beim nächsten Netz anmelden.
+      state.loaded = true; showApp();
+      return;
+    }
+    showGate("login");
   }
 
-  // Tageswechsel: Fälligkeiten neu berechnen
-  setInterval(() => { const d = iso(today()); if (d !== start.day) { start.day = d; $("#today").textContent = fmtLong.format(new Date()); renderAll(); } }, 60000);
+  window.addEventListener("online", async () => {
+    if (mode !== "sync" || !sb) return;
+    if (!session) {
+      const { data } = await sb.auth.getSession().catch(() => ({ data: {} }));
+      if (data && data.session) return enterSync(data.session);
+    }
+    pull();
+  });
+  window.addEventListener("offline", updateSyncLine);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const d = iso(today());
+    if (d !== start.day) { start.day = d; $("#today").textContent = fmtLong.format(new Date()); renderAll(); }
+    if (session) pull();
+  });
+  setInterval(() => {
+    const d = iso(today());
+    if (d !== start.day) { start.day = d; $("#today").textContent = fmtLong.format(new Date()); renderAll(); }
+    if (session && document.visibilityState === "visible" && cache.outbox.length) flush();
+    updateSyncLine();
+  }, 30000);
   start.day = iso(today());
+
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 
   start();
 })();
 </script>
-
 </body>
 </html>

@@ -1,0 +1,19 @@
+# Netlify: statische Seite, kein Build nötig.
+[build]
+  publish = "."
+
+# Service Worker und Konfiguration nie zwischenspeichern, damit Updates sofort ankommen.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
