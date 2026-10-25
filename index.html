@@ -91,6 +91,15 @@ table.sets { width: 100%; border-collapse: collapse; margin-top: 8px; }
 table.sets th { font-size: 12px; color: var(--muted); font-weight: 500; text-align: left; padding: 4px; }
 table.sets td { padding: 4px; vertical-align: middle; }
 table.sets td.n { width: 28px; color: var(--muted); font-size: 14px; }
+table.sets td.prev { width: 74px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.sets td.prev button { background: none; border: 0; padding: 6px 0; color: inherit; font: inherit; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+table.sets input::placeholder { color: var(--muted); opacity: .7; }
+.last { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: var(--chip); font-size: 14px; }
+.last span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.last strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.stepper button { background: var(--chip); border: 0; color: var(--text); width: 32px; height: 32px; font-size: 16px; cursor: pointer; }
+.stepper span { padding: 0 8px; font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 table.sets input { padding: 8px 6px; text-align: center; font-variant-numeric: tabular-nums; }
 table.sets tr.done input { border-color: var(--ok); }
 .check {
@@ -255,15 +264,19 @@ const setCount = w => w.entries.reduce((a, e) => a + doneSets(e).length, 0);
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 function startOfWeek(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); }
 
-function lastSetsFor(exerciseId, excludeId) {
+function lastEntryFor(exerciseId, excludeId) {
   for (let i = S.workouts.length - 1; i >= 0; i--) {
     const w = S.workouts[i];
     if (w.id === excludeId) continue;
     const e = w.entries.find(x => x.exerciseId === exerciseId);
-    if (e && doneSets(e).length) return doneSets(e);
+    if (e && doneSets(e).length) return { sets: doneSets(e), start: w.start };
   }
   return null;
 }
+const lastSetsFor = (exerciseId, excludeId) => (lastEntryFor(exerciseId, excludeId) || {}).sets || null;
+const prevSet = (prev, j) => prev ? prev[Math.min(j, prev.length - 1)] : null;
+const fmtSet = s => `${fmtNum(s.w || 0)} × ${s.r}`;
+const planSets = (t, id) => (t.sets && t.sets[id]) || 3;
 function bestE1rm(exerciseId, beforeTime = Infinity) {
   let best = 0;
   for (const w of S.workouts) {
@@ -352,14 +365,15 @@ function startWorkout(templateId) {
   const t = S.templates.find(x => x.id === templateId);
   S.active = {
     id: uid(), name: t ? t.name : "Training", start: Date.now(),
-    entries: (t ? t.exerciseIds : []).map(newEntry),
+    entries: (t ? t.exerciseIds : []).map(id => newEntry(id, planSets(t, id))),
   };
   save(); go("workout");
 }
-function newEntry(exerciseId) {
+// Neue Sätze bleiben leer; die Werte vom letzten Mal stehen als Platzhalter darin
+function newEntry(exerciseId, count) {
   const prev = lastSetsFor(exerciseId);
-  const sets = prev ? prev.map(s => ({ w: s.w, r: s.r, done: false })) : [{ w: "", r: "", done: false }, { w: "", r: "", done: false }, { w: "", r: "", done: false }];
-  return { exerciseId, sets };
+  const n = count || (prev ? prev.length : 3);
+  return { exerciseId, sets: Array.from({ length: n }, () => ({ w: "", r: "", done: false })) };
 }
 
 // ---------- Training ----------
@@ -373,7 +387,7 @@ function viewWorkout() {
     <div><div class="muted">Volumen</div><strong>${fmtNum(volume(a))} kg</strong></div>
   </div>
   ${a.entries.map((e, i) => {
-    const prev = lastSetsFor(e.exerciseId, a.id);
+    const last = lastEntryFor(e.exerciseId, a.id), prev = last && last.sets;
     const best = bestE1rm(e.exerciseId);
     return `
     <div class="card">
@@ -384,16 +398,18 @@ function viewWorkout() {
           <button class="btn small danger" onclick="removeEntry(${i})" aria-label="entfernen">✕</button>
         </div>
       </div>
-      ${prev ? `<div class="muted">Letztes Mal: ${prev.map(s => `${fmtNum(s.w || 0)}×${s.r}`).join(", ")}</div>` : `<div class="muted">Neue Übung – viel Erfolg!</div>`}
+      ${last ? `<div class="last"><span>Letztes Training · ${fmtDate(last.start)}</span><strong>${prev.map(fmtSet).join(" · ")}</strong></div>` : `<div class="muted">Erstes Mal bei dieser Übung</div>`}
       <table class="sets">
-        <tr><th>#</th><th>kg</th><th>Wdh.</th><th></th><th></th></tr>
+        <tr><th>#</th><th>Vorher</th><th>kg</th><th>Wdh.</th><th></th><th></th></tr>
         ${e.sets.map((s, j) => {
           const isPr = s.done && best > 0 && e1rm(s.w, s.r) > best;
+          const p = prevSet(prev, j);
           return `
           <tr class="${s.done ? "done" : ""}">
             <td class="n">${j + 1}</td>
-            <td><input inputmode="decimal" value="${s.w}" placeholder="0" onchange="setVal(${i},${j},'w',this.value)"></td>
-            <td><input inputmode="numeric" value="${s.r}" placeholder="0" onchange="setVal(${i},${j},'r',this.value)"></td>
+            <td class="prev">${p ? `<button onclick="copyPrev(${i},${j})" title="Werte übernehmen">${fmtSet(p)}</button>` : "–"}</td>
+            <td><input inputmode="decimal" value="${s.w}" placeholder="${p ? fmtNum(p.w || 0) : "0"}" onchange="setVal(${i},${j},'w',this.value)"></td>
+            <td><input inputmode="numeric" value="${s.r}" placeholder="${p ? p.r : "0"}" onchange="setVal(${i},${j},'r',this.value)"></td>
             <td style="width:44px"><button class="check" onclick="toggleSet(${i},${j})" aria-label="Satz erledigt">✓</button></td>
             <td style="width:36px">${isPr ? `<span class="pr">PR</span>` : `<button class="btn small" style="padding:6px 8px" onclick="removeSet(${i},${j})" aria-label="Satz löschen">−</button>`}</td>
           </tr>`;
@@ -414,8 +430,18 @@ function setVal(i, j, k, v) {
   S.active.entries[i].sets[j][k] = isNaN(n) ? "" : (k === "r" ? Math.round(n) : n);
   save();
 }
+function copyPrev(i, j) {
+  const e = S.active.entries[i], p = prevSet(lastSetsFor(e.exerciseId, S.active.id), j);
+  if (p) { e.sets[j].w = p.w; e.sets[j].r = p.r; save(); render(); }
+}
 function toggleSet(i, j) {
-  const s = S.active.entries[i].sets[j];
+  const e = S.active.entries[i], s = e.sets[j];
+  if (!s.done) {
+    // Leere Felder übernehmen den Platzhalter vom letzten Training
+    const p = prevSet(lastSetsFor(e.exerciseId, S.active.id), j);
+    if (p && s.w === "") s.w = p.w;
+    if (p && s.r === "") s.r = p.r;
+  }
   if (!s.done && !(s.r > 0)) return toast("Bitte Wiederholungen eintragen");
   s.done = !s.done;
   save(); render();
@@ -481,7 +507,7 @@ function createEx() {
 let draft = null;
 function editTemplate(id) {
   const t = S.templates.find(x => x.id === id);
-  draft = t ? { ...t, exerciseIds: [...t.exerciseIds] } : { id: uid(), name: "", exerciseIds: [], isNew: true };
+  draft = t ? { ...t, exerciseIds: [...t.exerciseIds], sets: { ...t.sets } } : { id: uid(), name: "", exerciseIds: [], sets: {}, isNew: true };
   renderTemplateModal();
 }
 function renderTemplateModal() {
@@ -489,13 +515,28 @@ function renderTemplateModal() {
     <div class="row between"><h2>${draft.isNew ? "Neuer Plan" : "Plan bearbeiten"}</h2><button class="btn small" onclick="closeModal()">Abbrechen</button></div>
     <input id="tplName" placeholder="Name, z. B. Oberkörper" value="${esc(draft.name)}" oninput="draft.name=this.value">
     <div style="margin-top:10px">
-      ${draft.exerciseIds.map((id, i) => `<div class="list-item"><span>${i + 1}. ${esc(exName(id))}</span><button class="btn small danger" onclick="draft.exerciseIds.splice(${i},1);renderTemplateModal()">✕</button></div>`).join("") || `<div class="muted">Noch keine Übungen</div>`}
+      ${draft.exerciseIds.map((id, i) => `
+        <div class="list-item">
+          <span style="min-width:0">${i + 1}. ${esc(exName(id))}</span>
+          <div class="row">
+            <div class="stepper" aria-label="Anzahl Sätze">
+              <button onclick="stepSets('${id}',-1)" aria-label="Ein Satz weniger">−</button>
+              <span>${planSets(draft, id)} Sätze</span>
+              <button onclick="stepSets('${id}',1)" aria-label="Ein Satz mehr">+</button>
+            </div>
+            <button class="btn small danger" onclick="draft.exerciseIds.splice(${i},1);renderTemplateModal()" aria-label="Übung entfernen">✕</button>
+          </div>
+        </div>`).join("") || `<div class="muted">Noch keine Übungen</div>`}
     </div>
     <button class="btn block" style="margin-top:8px" onclick="pickExercise(id=>{draft.exerciseIds.push(id);renderTemplateModal()})">+ Übung</button>
     <div class="row" style="margin-top:12px">
       ${draft.isNew ? "" : `<button class="btn block danger" onclick="deleteTemplate()">Löschen</button>`}
       <button class="btn block primary" onclick="saveTemplate()">Speichern</button>
     </div>`);
+}
+function stepSets(id, d) {
+  draft.sets[id] = Math.min(10, Math.max(1, planSets(draft, id) + d));
+  renderTemplateModal();
 }
 function saveTemplate() {
   if (!draft.name.trim()) return toast("Bitte Namen eingeben");
@@ -655,8 +696,12 @@ function viewSettings() {
   </div>
   <div class="card">
     <h2>Übungen</h2>
-    <details><summary class="muted">${S.exercises.length} Übungen anzeigen</summary>
-      ${S.exercises.map(e => `<div class="list-item"><span>${esc(e.name)} <span class="chip">${e.group}</span></span><button class="btn small danger" onclick="deleteEx('${e.id}')">✕</button></div>`).join("")}
+    <button class="btn block primary" onclick="editExercise(null)">+ Neue Übung</button>
+    <details style="margin-top:10px"><summary class="muted">${S.exercises.length} Übungen anzeigen und bearbeiten</summary>
+      ${GROUPS.map(g => {
+        const items = S.exercises.filter(e => e.group === g);
+        return items.length ? `<div class="muted" style="margin-top:10px">${g}</div>` + items.map(e => `<div class="list-item"><span>${esc(e.name)}</span><button class="btn small" onclick="editExercise('${e.id}')">Bearbeiten</button></div>`).join("") : "";
+      }).join("")}
     </details>
   </div>
   <div class="card">
@@ -671,12 +716,34 @@ function viewSettings() {
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(this.files[0])">
   </div>`;
 }
+function editExercise(id) {
+  const ex = S.exercises.find(e => e.id === id) || { name: "", group: GROUPS[0] };
+  openModal(`
+    <div class="row between"><h2>${id ? "Übung bearbeiten" : "Neue Übung"}</h2><button class="btn small" onclick="closeModal()">Abbrechen</button></div>
+    <label><div class="muted">Name</div><input id="exEditName" value="${esc(ex.name)}" placeholder="z. B. Hip Thrust"></label>
+    <label style="display:block;margin-top:10px"><div class="muted">Muskelgruppe</div>
+      <select id="exEditGroup">${GROUPS.map(g => `<option ${g === ex.group ? "selected" : ""}>${g}</option>`).join("")}</select></label>
+    ${id ? `<p class="muted">Umbenennen ändert den Namen auch im Verlauf und in deinen Plänen.</p>` : ""}
+    <div class="row" style="margin-top:12px">
+      ${id ? `<button class="btn block danger" onclick="deleteEx('${id}')">Löschen</button>` : ""}
+      <button class="btn block primary" onclick="saveExercise(${id ? `'${id}'` : "null"})">Speichern</button>
+    </div>`);
+  $("#exEditName").focus();
+}
+function saveExercise(id) {
+  const name = $("#exEditName").value.trim(), group = $("#exEditGroup").value;
+  if (!name) return toast("Bitte einen Namen eingeben");
+  if (S.exercises.some(e => e.id !== id && e.name.toLowerCase() === name.toLowerCase())) return toast(`„${name}“ gibt es schon`);
+  const ex = S.exercises.find(e => e.id === id);
+  if (ex) Object.assign(ex, { name, group }); else S.exercises.push({ id: uid(), name, group });
+  save(); closeModal(); render(); toast(ex ? "Übung gespeichert" : `„${name}“ angelegt`);
+}
 async function deleteEx(id) {
   const used = S.workouts.some(w => w.entries.some(e => e.exerciseId === id));
   if (!(await ask(used ? `${exName(id)} kommt im Verlauf vor und erscheint dort dann als „Gelöschte Übung“. Trotzdem löschen?` : `${exName(id)} löschen?`))) return;
   S.exercises = S.exercises.filter(e => e.id !== id);
   S.templates.forEach(t => t.exerciseIds = t.exerciseIds.filter(x => x !== id));
-  save(); render();
+  save(); closeModal(); render();
 }
 async function download(name, text, type) {
   if (window.claude && window.claude.use) {
