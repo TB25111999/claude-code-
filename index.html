@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kalorienzähler</title>
+  <meta name="description" content="Kalorien zählen, Mahlzeiten und Gerichte anlegen, Barcodes scannen – mit Millionen Lebensmitteln aus Open Food Facts.">
+  <meta name="theme-color" content="#16a34a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kalorien">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main id="view" class="view"></main>
+
+  <nav class="tabbar" aria-label="Navigation">
+    <button data-tab="diary"><span>📔</span>Tagebuch</button>
+    <button data-tab="recipes"><span>🥘</span>Gerichte</button>
+    <button data-act="scan" class="scan-tab" aria-label="Barcode scannen">
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M2 5h2v14H2zm3 0h1v14H5zm2 0h3v14H7zm4 0h1v14h-1zm3 0h2v14h-2zm3 0h1v14h-1zm2 0h3v14h-3z"/></svg>
+    </button>
+    <button data-tab="foods"><span>🍎</span>Lebensmittel</button>
+    <button data-tab="profile"><span>👤</span>Profil</button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <noscript>Bitte JavaScript aktivieren, um den Kalorienzähler zu nutzen.</noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
