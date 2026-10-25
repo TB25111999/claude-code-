@@ -5,64 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1115">
 <title>GymLog</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
+/* Layout: einspaltige Handy-App, feste Tab-Leiste unten, Karten nur für Übungen und Auswertungen */
 :root {
-  --bg: #f4f5f7; --card: #ffffff; --text: #15171c; --muted: #6b7280;
-  --line: #e3e5ea; --accent: #2563eb; --accent-text: #fff; --ok: #16a34a; --danger: #dc2626;
-  --chip: #eef1f6;
+  --bg: #f5f4f2; --card: #ffffff; --text: #1b1a18; --muted: #6e6a64;
+  --line: #e4e1dc; --chip: #efece7; --accent: #d9480f; --accent-text: #ffffff;
+  --ok: #2f9e44; --danger: #c92a2a; --danger-text: #ffffff;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1115; --card: #181b22; --text: #eceef2; --muted: #9aa1ad;
-    --line: #2a2f3a; --accent: #4f8cff; --accent-text: #fff; --ok: #22c55e; --danger: #f87171;
-    --chip: #222733;
+    --bg: #121110; --card: #1c1a18; --text: #efece8; --muted: #a39d95;
+    --line: #2e2b28; --chip: #262320; --accent: #ff8a3d; --accent-text: #1b1a18;
+    --ok: #40c057; --danger: #ff6b6b; --danger-text: #1b1a18; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1115; --card: #181b22; --text: #eceef2; --muted: #9aa1ad;
-  --line: #2a2f3a; --accent: #4f8cff; --accent-text: #fff; --ok: #22c55e; --danger: #f87171;
-  --chip: #222733;
+  --bg: #121110; --card: #1c1a18; --text: #efece8; --muted: #a39d95;
+  --line: #2e2b28; --chip: #262320; --accent: #ff8a3d; --accent-text: #1b1a18;
+  --ok: #40c057; --danger: #ff6b6b; --danger-text: #1b1a18; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
   background: var(--bg); color: var(--text);
-  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 16px/1.45 var(--font-body);
   padding-bottom: calc(76px + env(safe-area-inset-bottom));
 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 header {
-  position: sticky; top: 0; z-index: 5; background: var(--bg);
-  padding: 14px 16px 10px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  padding-block: 14px 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--line);
 }
-header h1 { font-size: 20px; margin: 0; }
-main { max-width: 720px; margin: 0 auto; padding: 16px; }
+header h1 { font: 700 26px/1 var(--font-display); letter-spacing: .02em; text-transform: uppercase; margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+main { max-width: 720px; margin: 0 auto; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
   display: grid; grid-template-columns: repeat(5, 1fr);
   background: var(--card); border-top: 1px solid var(--line);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
 }
 nav button {
   background: none; border: 0; color: var(--muted); padding: 10px 0 8px;
-  font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+  font: 500 12px var(--font-body); display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
 }
-nav button .ic { font-size: 20px; }
+nav button svg { width: 22px; height: 22px; }
 nav button.active { color: var(--accent); font-weight: 600; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
 .row { display: flex; gap: 8px; align-items: center; }
 .between { justify-content: space-between; }
 .wrap { flex-wrap: wrap; }
 .muted { color: var(--muted); font-size: 14px; }
-h2 { font-size: 18px; margin: 4px 0 12px; }
-h3 { font-size: 16px; margin: 0; }
+h2 { font: 700 21px/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .03em; margin: 4px 0 12px; }
+h3 { font-size: 16px; font-weight: 600; margin: 0; }
 button.btn, .btn {
   border: 1px solid var(--line); background: var(--chip); color: var(--text);
   border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; font-weight: 500;
 }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 .btn.danger { color: var(--danger); }
+.btn.danger-fill { background: var(--danger); border-color: var(--danger); color: var(--danger-text); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn.small { padding: 6px 10px; font-size: 14px; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: .5; }
@@ -74,13 +85,13 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
 .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
-.stat .v { font-size: 22px; font-weight: 700; }
-.stat .l { font-size: 12px; color: var(--muted); }
+.stat .v { font: 700 30px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 table.sets { width: 100%; border-collapse: collapse; margin-top: 8px; }
 table.sets th { font-size: 12px; color: var(--muted); font-weight: 500; text-align: left; padding: 4px; }
 table.sets td { padding: 4px; vertical-align: middle; }
 table.sets td.n { width: 28px; color: var(--muted); font-size: 14px; }
-table.sets input { padding: 8px 6px; text-align: center; }
+table.sets input { padding: 8px 6px; text-align: center; font-variant-numeric: tabular-nums; }
 table.sets tr.done input { border-color: var(--ok); }
 .check {
   width: 40px; height: 38px; border-radius: 10px; border: 1px solid var(--line);
@@ -91,18 +102,23 @@ tr.done .check { background: var(--ok); border-color: var(--ok); color: #fff; }
 .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); gap: 8px; }
 .list-item:last-child { border-bottom: 0; }
 .timer {
-  position: fixed; left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 9;
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(80px + env(safe-area-inset-bottom, 0px)); z-index: 9;
   max-width: 688px; margin: 0 auto; background: var(--accent); color: var(--accent-text);
   border-radius: 14px; padding: 10px 14px; display: none; align-items: center; justify-content: space-between; gap: 8px;
   box-shadow: 0 6px 20px rgba(0,0,0,.25);
 }
 .timer.show { display: flex; }
 body.timing { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
-.timer .t { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.timer button { background: rgba(255,255,255,.2); color: #fff; border: 0; border-radius: 8px; padding: 6px 10px; font-size: 14px; cursor: pointer; }
+.timer .t { font: 700 30px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.timer button { background: rgba(0,0,0,.14); color: inherit; border: 0; border-radius: 8px; padding: 6px 10px; font-size: 14px; cursor: pointer; }
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 20; display: none; align-items: flex-end; justify-content: center; }
 .modal-bg.show { display: flex; }
-.modal { background: var(--card); width: 100%; max-width: 720px; max-height: 85vh; overflow: auto; border-radius: 18px 18px 0 0; padding: 16px; }
+.modal { background: var(--card); width: 100%; max-width: 720px; max-height: 85vh; overflow: auto; border-radius: 18px 18px 0 0; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+#askBg { z-index: 25; align-items: center; padding: 16px; }
+#askBg .modal { border-radius: 16px; max-width: 420px; padding: 16px; }
+.sync { display: inline-flex; align-items: center; gap: 6px; }
+.sync::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sync.cloud::before { background: var(--ok); }
 .pr { color: var(--ok); font-weight: 600; font-size: 13px; }
 canvas { width: 100%; height: 200px; display: block; }
 .empty { text-align: center; color: var(--muted); padding: 24px 8px; }
@@ -116,12 +132,12 @@ details summary { cursor: pointer; }
 <body>
 <header>
   <h1 id="title">GymLog</h1>
-  <button class="btn small" id="themeBtn" title="Design wechseln">🌓</button>
+  <button class="btn small" id="themeBtn" title="Hell/Dunkel wechseln" aria-label="Hell/Dunkel wechseln"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
 </header>
 <main id="view"></main>
 
 <div class="timer" id="timer">
-  <div><div class="muted" style="color:inherit;opacity:.8;font-size:12px">Pause</div><div class="t" id="timerT">0:00</div></div>
+  <div><div style="opacity:.8;font-size:12px;text-transform:uppercase;letter-spacing:.06em">Pause</div><div class="t" id="timerT">0:00</div></div>
   <div class="row">
     <button data-tadd="-15">−15</button>
     <button data-tadd="15">+15</button>
@@ -130,13 +146,14 @@ details summary { cursor: pointer; }
 </div>
 
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="modal-bg" id="askBg"><div class="modal" id="ask" role="alertdialog"></div></div>
 
 <nav id="nav">
-  <button data-tab="home"><span class="ic">🏠</span>Start</button>
-  <button data-tab="workout"><span class="ic">🏋️</span>Training</button>
-  <button data-tab="history"><span class="ic">📅</span>Verlauf</button>
-  <button data-tab="progress"><span class="ic">📈</span>Fortschritt</button>
-  <button data-tab="settings"><span class="ic">⚙️</span>Mehr</button>
+  <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Start</button>
+  <button data-tab="workout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/></svg>Training</button>
+  <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Verlauf</button>
+  <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M5 15l4-4 4 3 6-7"/></svg>Fortschritt</button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg>Mehr</button>
 </nav>
 
 <script>
@@ -173,10 +190,56 @@ function freshState() {
   };
 }
 
+// Speicherung: im claude.ai-Viewer privat im Konto (db), sonst im Browser (localStorage)
+const META = ["exercises", "templates", "active", "bodyweight", "settings"];
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || freshState(); } catch { S = freshState(); }
 S.settings = Object.assign({ rest: 90, theme: "auto", weeklyGoal: 3 }, S.settings);
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+let db = null, userId = null, cloud = false, readOnly = false, metaTimer = null, writes = Promise.resolve();
+const metaRef = () => db.doc(`data/users/${userId}/gymlog`);
+const workoutRef = id => metaRef().collection("workouts").doc(id);
+function queueWrite(fn) { writes = writes.then(fn).catch(syncError); return writes; }
+function syncError(e) {
+  if (e && e.code === "invalid_argument") { readOnly = true; toast("Du kannst hier nur lesen. Änderungen werden nicht gespeichert."); }
+  else if (e && e.code === "quota_exceeded") toast("Speicher voll. Lösche alte Trainings, um neue zu speichern.");
+  else toast("Speichern fehlgeschlagen. Prüfe deine Verbindung.");
+}
+function save() {
+  if (!cloud) { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} return; }
+  if (readOnly) return;
+  clearTimeout(metaTimer);
+  metaTimer = setTimeout(() => {
+    const body = {}; META.forEach(k => body[k] = S[k] ?? null);
+    queueWrite(() => metaRef().set(body));
+  }, 500);
+}
+function saveWorkout(w) { save(); if (cloud && !readOnly) queueWrite(() => workoutRef(w.id).set(w)); }
+function dropWorkout(id) { save(); if (cloud && !readOnly) queueWrite(() => workoutRef(id).delete()); }
+async function replaceAll(next) {
+  const old = S.workouts.map(w => w.id);
+  S = next; save();
+  if (!cloud || readOnly) return;
+  for (const id of old) if (!S.workouts.some(w => w.id === id)) await queueWrite(() => workoutRef(id).delete());
+  for (const w of S.workouts) await queueWrite(() => workoutRef(w.id).set(w));
+}
+async function initCloud() {
+  if (!window.claude || !window.claude.use) return;
+  try {
+    const [d, u] = await Promise.all([claude.use("db"), claude.use("user")]);
+    const id = u ? await u.id() : null;
+    if (!d || !id) return;
+    db = d; userId = id;
+    const [m, ws] = await Promise.all([metaRef().get(), metaRef().collection("workouts").orderBy("start").limit(1000).get()]);
+    const clone = o => JSON.parse(JSON.stringify(o));
+    const next = freshState();
+    if (m.exists) { const data = clone(m.data()); META.forEach(k => { if (k in data) next[k] = data[k]; }); }
+    next.settings = Object.assign(freshState().settings, next.settings);
+    next.workouts = ws.docs.map(x => clone(x.data()));
+    S = next; cloud = true;
+    if (S.active && tab === "home") tab = "workout";
+    applyTheme(); render();
+  } catch (e) { cloud = false; }
+}
 
 // ---------- Helfer ----------
 const $ = s => document.querySelector(s);
@@ -364,17 +427,19 @@ function addSet(i) {
   save(); render();
 }
 function removeSet(i, j) { S.active.entries[i].sets.splice(j, 1); save(); render(); }
-function removeEntry(i) { if (confirm(`${exName(S.active.entries[i].exerciseId)} entfernen?`)) { S.active.entries.splice(i, 1); save(); render(); } }
+async function removeEntry(i) { if (await ask(`${exName(S.active.entries[i].exerciseId)} aus diesem Training entfernen?`, "Entfernen")) { S.active.entries.splice(i, 1); save(); render(); } }
 function moveEntry(i, d) { const e = S.active.entries; [e[i], e[i + d]] = [e[i + d], e[i]]; save(); render(); }
-function discardWorkout() { if (confirm("Training wirklich verwerfen?")) { S.active = null; stopTimer(); save(); go("home"); } }
-function finishWorkout() {
+async function discardWorkout() { if (await ask("Training verwerfen? Alle Sätze dieses Trainings gehen verloren.", "Verwerfen")) { S.active = null; stopTimer(); save(); go("home"); } }
+async function finishWorkout() {
   const a = S.active;
+  const pending = a.entries.reduce((n, e) => n + e.sets.filter(s => !s.done).length, 0);
+  if (pending && setCount(a) && !(await ask(`${pending} Sätze sind nicht abgehakt und werden nicht gespeichert. Trotzdem beenden?`, "Beenden"))) return;
   a.entries.forEach(e => e.sets = e.sets.filter(s => s.done));
   a.entries = a.entries.filter(e => e.sets.length);
-  if (!a.entries.length) { if (!confirm("Keine erledigten Sätze. Training ohne Speichern beenden?")) return; S.active = null; save(); return go("home"); }
+  if (!a.entries.length) { if (!(await ask("Du hast keinen Satz abgehakt. Training ohne Speichern beenden?", "Beenden"))) return; S.active = null; save(); return go("home"); }
   a.end = Date.now();
   const prs = a.entries.filter(e => { const b = bestE1rm(e.exerciseId, a.start); return b > 0 && Math.max(...e.sets.map(s => e1rm(s.w, s.r))) > b; }).length;
-  S.workouts.push(a); S.active = null; stopTimer(); save();
+  S.workouts.push(a); S.active = null; stopTimer(); saveWorkout(a);
   toast(`Gespeichert! ${setCount(a)} Sätze, ${fmtNum(volume(a))} kg${prs ? ` · ${prs} neue PRs 🎉` : ""}`);
   go("home");
 }
@@ -439,8 +504,8 @@ function saveTemplate() {
   if (i >= 0) S.templates[i] = t; else S.templates.push(t);
   save(); closeModal(); render();
 }
-function deleteTemplate() {
-  if (!confirm("Plan löschen?")) return;
+async function deleteTemplate() {
+  if (!(await ask(`Plan „${draft.name}“ löschen?`))) return;
   S.templates = S.templates.filter(x => x.id !== draft.id); save(); closeModal(); render();
 }
 
@@ -458,7 +523,7 @@ function viewHistory() {
       </div>
     </div>`).join("");
 }
-function deleteWorkout(id) { if (confirm("Training löschen?")) { S.workouts = S.workouts.filter(w => w.id !== id); save(); render(); } }
+async function deleteWorkout(id) { if (await ask("Dieses Training aus dem Verlauf löschen?")) { S.workouts = S.workouts.filter(w => w.id !== id); dropWorkout(id); render(); } }
 
 // ---------- Fortschritt ----------
 function viewProgress() {
@@ -596,7 +661,7 @@ function viewSettings() {
   </div>
   <div class="card">
     <h2>Daten</h2>
-    <p class="muted">Alle Daten liegen nur auf diesem Gerät. Exportiere regelmäßig ein Backup.</p>
+    <p class="muted">${cloud ? `<span class="sync cloud">Privat in deinem Konto gespeichert, auf allen Geräten verfügbar.</span>` : `<span class="sync">Nur in diesem Browser gespeichert. Exportiere regelmäßig ein Backup.</span>`}</p>
     <div class="row wrap">
       <button class="btn" onclick="exportData()">Backup exportieren</button>
       <button class="btn" onclick="$('#importFile').click()">Backup importieren</button>
@@ -606,13 +671,20 @@ function viewSettings() {
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(this.files[0])">
   </div>`;
 }
-function deleteEx(id) {
-  if (S.workouts.some(w => w.entries.some(e => e.exerciseId === id)) && !confirm("Diese Übung kommt im Verlauf vor. Trotzdem löschen?")) return;
+async function deleteEx(id) {
+  const used = S.workouts.some(w => w.entries.some(e => e.exerciseId === id));
+  if (!(await ask(used ? `${exName(id)} kommt im Verlauf vor und erscheint dort dann als „Gelöschte Übung“. Trotzdem löschen?` : `${exName(id)} löschen?`))) return;
   S.exercises = S.exercises.filter(e => e.id !== id);
   S.templates.forEach(t => t.exerciseIds = t.exerciseIds.filter(x => x !== id));
   save(); render();
 }
-function download(name, text, type) {
+async function download(name, text, type) {
+  if (window.claude && window.claude.use) {
+    const dl = await claude.use("downloads");
+    if (!dl) return toast("Export ist in dieser Ansicht nicht verfügbar.");
+    try { await dl.save({ filename: name, data: new Blob([text], { type }) }); } catch (e) { if (e && e.code !== "declined" && e.code !== "cancelled") toast("Export fehlgeschlagen."); }
+    return;
+  }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -625,14 +697,17 @@ function exportCsv() {
 }
 function importData(file) {
   if (!file) return;
-  file.text().then(t => {
+  file.text().then(async t => {
     const d = JSON.parse(t);
     if (!Array.isArray(d.workouts) || !Array.isArray(d.exercises)) throw new Error();
-    if (!confirm("Aktuelle Daten durch das Backup ersetzen?")) return;
-    S = Object.assign(freshState(), d); save(); applyTheme(); toast("Backup importiert"); render();
-  }).catch(() => toast("Ungültige Backup-Datei"));
+    $("#importFile").value = "";
+    if (!(await ask(`Backup mit ${d.workouts.length} Trainings laden? Deine aktuellen Daten werden ersetzt.`, "Ersetzen"))) return;
+    const next = Object.assign(freshState(), d);
+    next.settings = Object.assign(freshState().settings, d.settings);
+    await replaceAll(next); applyTheme(); toast("Backup importiert"); render();
+  }).catch(() => toast("Die Datei ist kein GymLog-Backup."));
 }
-function resetAll() { if (confirm("Wirklich ALLE Daten löschen?")) { S = freshState(); save(); stopTimer(); go("home"); } }
+async function resetAll() { if (await ask("Alle Trainings, Pläne und Körpergewichte löschen? Das lässt sich nicht rückgängig machen.", "Alles löschen")) { await replaceAll(freshState()); stopTimer(); go("home"); } }
 
 // ---------- Pausentimer ----------
 let timerEnd = 0, timerInt = null;
@@ -658,7 +733,16 @@ function beep() {
 $("#timerStop").onclick = stopTimer;
 document.querySelectorAll("[data-tadd]").forEach(b => b.onclick = () => { timerEnd += +b.dataset.tadd * 1000; tick(); });
 
-// ---------- Modal & Toast ----------
+// ---------- Modal, Rückfrage & Toast ----------
+function ask(msg, okLabel = "Löschen") {
+  return new Promise(res => {
+    $("#ask").innerHTML = `<p style="margin:0 0 14px">${esc(msg)}</p><div class="row"><button class="btn block" id="askNo">Abbrechen</button><button class="btn block danger-fill" id="askYes">${esc(okLabel)}</button></div>`;
+    $("#askBg").classList.add("show");
+    const done = v => { $("#askBg").classList.remove("show"); res(v); };
+    $("#askNo").onclick = () => done(false); $("#askYes").onclick = () => done(true);
+    $("#askYes").focus();
+  });
+}
 function openModal(html) { $("#modal").innerHTML = html; $("#modalBg").classList.add("show"); }
 function closeModal() { $("#modalBg").classList.remove("show"); }
 $("#modalBg").addEventListener("click", e => { if (e.target.id === "modalBg") closeModal(); });
@@ -672,9 +756,10 @@ function toast(msg) {
 // Dauer im laufenden Training aktualisieren
 setInterval(() => { const d = $("#dur"); if (d && S.active) d.textContent = fmtDur(Date.now() - S.active.start); }, 30000);
 
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+try { if (!window.claude && "serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {}); } catch {}
 applyTheme();
 render();
+initCloud();
 </script>
 </body>
 </html>
